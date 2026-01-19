@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head lang="en-US">
+    <meta charset="utf-8">
+    <title>Home</title>
+</head>
+
+<body>
+    <p>This site is being created to make my life easier while hosting Archipelago games for my friends.</p>
+    <p>The intention is for a host to be able to create a 
+        lobby that players can connect to with the YAMLs for 
+        the games that they're going to be playing. Then, 
+        the host can just hit "download" and get a zip file 
+        with them.</p>
+    {% if username %}
+        <button>Account</button>
+    {% else %}
+        <a>Log in</a>
+        <a>Sign up</a>
+    {% endif %}
+    <button>Super Secret Admin Button</button>
+</body>
+</html>
