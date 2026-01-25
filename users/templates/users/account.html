@@ -7,4 +7,6 @@
     <h1>Account</h1>
     <p>Username: {{ user.name }}</p>
     <p>Email: {{ user.email }}</p>
+    <a href="{% url 'user_yamls:view_yamls' user.id %}">YAMLs</a>
+    <a>Waiting Rooms</a>
 </body>

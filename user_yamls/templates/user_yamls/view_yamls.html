@@ -1,0 +1,15 @@
+<!doctype html>
+<head lang="en-US">
+    <meta charset="utf-8">
+    <title>Yamls</title>
+</head>
+<body>
+    <h1>YAMLs</h1>
+    {% for yaml in user.user_yamls_set.all %}
+        <fieldset>
+            <p>{{ yaml.game_name }} {{ yaml.slot }}</p>
+            <p>{{ yaml.description }}</p>
+            <button>Download</button>
+        </fieldset>
+    {% endfor %}
+</body>
