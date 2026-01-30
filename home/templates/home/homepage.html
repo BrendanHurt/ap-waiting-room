@@ -15,7 +15,7 @@
     {% if username %}
         <button>Account</button>
     {% else %}
-        <a>Log in</a>
+        <a href="{% url 'home:login'%}">Log in</a>
         <a>Sign up</a>
     {% endif %}
     <button>Super Secret Admin Button</button>

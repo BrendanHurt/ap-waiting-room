@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head lang="en-US">
+    <meta charset="utf-8">
+    <title>Sign in</title>
+</head>
+<body>
+    <form action="{% url 'users:user_auth' %}" method="post">
+        {% csrf_token %}
+        <fieldset>
+            <h1>Log in</h1>
+            <label>Username</label>
+            <input type="text" name="name" id="name">
+        </fieldset>
+        <input type="submit" value="Log in">
+    </form>
+</body>
+</html>
