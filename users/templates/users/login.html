@@ -5,6 +5,7 @@
     <title>Sign in</title>
 </head>
 <body>
+    {% include "home/nav.html" %}
     <form action="{% url 'users:user_auth' %}" method="post">
         {% csrf_token %}
         <fieldset>

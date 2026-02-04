@@ -5,6 +5,7 @@
         <title>Add a yaml</title>
     </head>
     <body>
+        {% include "home/nav.html" %}
         <form action="{% url 'user_yamls:add_yaml' %}" method="post">
             {% csrf_token %}
             <fieldset>

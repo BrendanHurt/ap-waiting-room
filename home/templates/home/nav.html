@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head lang="en-US">
+    <meta charset="utf-8">
+</head>
+<body>
+    <a href="{% url 'home:home' %}">
+        Home
+    </a>
+    {% if request.session.user_id %}
+        <a href="{% url 'users:account' request.session.user_id %}">
+            Account
+        </a>
+    {% else %}
+        <a href="{% url 'home:login'%}">Log in</a>
+        <a>Sign up</a>
+    {% endif %}
+</body>
+</html>
