@@ -46,3 +46,14 @@ def add(request):
         )
     except DatabaseError:
         return HttpResponse(DatabaseError)
+
+def delete_yaml(request, yaml_id):
+    yaml = user_yamls.objects.get(pk = yaml_id)
+    yaml.delete()
+    return HttpResponseRedirect(
+        reverse(
+            "user_yamls:view_yamls",
+            args=(request.session.get("user_id"),)
+        )
+    )
+    

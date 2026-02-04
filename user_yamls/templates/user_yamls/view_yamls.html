@@ -10,6 +10,9 @@
             <p>{{ yaml.game_name }} {{ yaml.slot }}</p>
             <p>{{ yaml.description }}</p>
             <button>Download</button>
+            <a href="{% url 'user_yamls:del' yaml.id %}">
+                Delete
+            </a>
         </fieldset>
     {% endfor %}
     <a href="{% url 'user_yamls:yaml_form' %}">Add a YAML</a>
