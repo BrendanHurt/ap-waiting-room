@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en-US">
+        <meta charset="utf-8">
+        <title>Add a yaml</title>
+    </head>
+    <body>
+        <form action="{% url 'user_yamls:add_yaml' %}" method="post">
+            {% csrf_token %}
+            <fieldset>
+                <label for="slot_name">Slot Name</label>
+                <input type="text" name="slot" id="slot" required>
+            </fieldset>
+            <fieldset>
+                <label for="game_name">Game Name</label>
+                <input type="text" name="game_name" id="game_name" required>
+            </fieldset>
+            <fieldset>
+                <label for="description">Description</label>
+                <input type="text" name="description" id="description">
+            </fieldset>
+            <fieldset>
+                <label for="game_options">Randomizer Options</label>
+                <input type="text" name="game_options" id="game_options" required>
+            </fieldset>
+            <input type="submit" value="Save Game Options">
+        </form>
+    </body>
+</html>
