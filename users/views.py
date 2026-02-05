@@ -1,6 +1,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.db import DatabaseError
+from django.contrib import messages
 
 from .models import users
 
@@ -19,24 +21,17 @@ def account(request, user_id):
         return HttpResponse('Error accessing account page')
 
 def user_auth(request):
-    try:
-        user = users.objects.get(
-            name = request.POST["name"]
-        )
+    user = users.objects.filter(
+        name = request.POST["name"]
+    )
 
-        request.session['user_id'] = user.id
-        
-        return account(request, user.id)
+    if user:
+        request.session['user_id'] = user[0].id
+        return account(request, user[0].id)
+    else:
+        messages.error(request, "Invalid username")
 
-    except (KeyError):
-        return HttpResponse('Error while signing in')
-#        return HttpResponseRedirect(
-#            render(
-#                request,
-#                'home/login.html',
-#               { 'error_message': 'Invalid login'},
-#            )
-#        )
+    return render(request, 'users/login.html')
 
 def logout(request):
     if request.session.get("user_id"):
