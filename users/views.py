@@ -37,3 +37,13 @@ def user_auth(request):
 #               { 'error_message': 'Invalid login'},
 #            )
 #        )
+
+def logout(request):
+    if request.session.get("user_id"):
+        del request.session["user_id"]
+    return HttpResponseRedirect(
+        reverse(
+            "home:home",
+            args=()
+        )
+    )

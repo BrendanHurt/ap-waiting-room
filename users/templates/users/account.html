@@ -10,4 +10,5 @@
     <p>Email: {{ user.email }}</p>
     <a href="{% url 'user_yamls:view_yamls' user.id %}">YAMLs</a>
     <a>Waiting Rooms</a>
+    <a href="{% url 'users:logout' %}">Log Out</a>
 </body>
