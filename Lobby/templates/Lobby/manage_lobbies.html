@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en-US">
+        <meta charset="utf-8">
+        <title>Lobby</title>
+    </head>
+    <body>
+        {% include "home/nav.html" %}
+        <h1>Lobbies</h1>
+        <a href="{% url 'Lobby:create_lobby' %}">
+            Host a new Lobby
+        </a>
+        {% for lobby in lobbies %}
+            <div class="lobby-card">
+                <p>Lobby Name: {{lobby.name}}</p>
+                <p>Lobby Start Date: {{lobby.start_date}}</p>
+                <label for="lobby-{{lobby.id}}">
+                    Async Lobby
+                </label>
+                <input type="checkbox" 
+                    id="lobby-{{lobby.id}}"
+                    name="is_async"
+                    {% if lobby.is_async %}
+                        checked
+                    {% endif %}
+                    diabled
+                >
+                {% if lobby.description %}
+                    <p>Description:</p>
+                    <p>{{lobby.description}}</p>
+                {% endif %}
+                <a href="{% url 'Lobby:delete_lobby' lobby.id %}">
+                    Delete
+                </a>
+            </div>
+        {% endfor %}
+    </body>
+
+    <style>
+        .lobby-card {
+            border: 2px solid;
+            border-color: black;
+            margin: 2px;
+        }
+    </style>
+</html>

@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'user_yamls.apps.UserYamlsConfig',
     'home.apps.HomeConfig',
+    'Lobby.apps.LobbyConfig',
 
     
     'django.contrib.admin',

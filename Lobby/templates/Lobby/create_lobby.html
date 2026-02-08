@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en-US">
+        <meta charset="utf-8">
+        <title>Host a lobby</title>
+    </head>
+    <body>
+        <form action="{% url 'Lobby:insert_lobby' %}" method="post">
+            {% csrf_token %}
+            <fieldset>
+                <label for="name">Lobby Name</label>
+                <input type="text" name="name" id="name">
+            </fieldset>
+            <fieldset>
+                <label for="start_date">Start Date for the Archipelago Run</label>
+                <input type="date" name="start_date" id="start_date" required>
+            </fieldset>
+            <fieldset>
+                <label for="description">Description</label>
+                <input type="text" name="description" id="description">
+            </fieldset>
+            <input type="checkbox" name="is_async" id="is_async">
+            <label for="is_async">Asyncronous Lobby</label>
+            <input type="submit" value="Create Lobby">
+        </form>
+    </body>
+</html>
