@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en-US">
+        <meta charset="utf-8">
+        <Title>{{ lobby.name }} Details</Title>
+    </head>
+    <body>
+        {% include 'home/nav.html' %}
+        {% include 'Lobby/lobby_info.html' %}
+        {% for yaml in yamls %}
+            <fieldset>
+                <p>Game: {{ yaml.game_name }}</p>
+                <p>Description:</p>
+                <p>{{ yaml.description }}</p>
+                <p>Randomizer Settings:</p>
+                <p>{{ yaml.game_options }}</p>
+            </fieldset>
+        {% endfor %}
+    </body>
+</html>

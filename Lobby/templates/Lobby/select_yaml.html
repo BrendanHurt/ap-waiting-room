@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en-US">
+        <meta charset="utf-8">
+        <title>YAML Selection</title>
+    </head>
+    <body>
+        <h1>Select the YAMLs for the game(s) you want to use in this lobby</h1>
+        <form action="{% url 'Lobby:join_lobby' lobby_id %}" method="post">
+            {% csrf_token %}
+            {% for yaml in yaml_list %}
+                <div>
+                    <p>Game Name: {{yaml.game_name}}</p>
+                    <p>Slot Name: {{yaml.slot}}</p>
+                    <p>Description:<br>{{yaml.description}}</p>
+                    <p>Settings:<br>{{yaml.game_options}}</p>
+                    <input type="checkbox"
+                        name="yaml_ids"
+                        value="{{ yaml.id }}"
+                        id="yaml{{ forloop.counter }}"
+                    >
+                    <label for="yaml{{ forloop.counter }}">Add this game</label>
+                </div>
+            {% endfor %}
+            <input type="submit" value="Join Lobby">
+        </form>
+    </body>
+</html>
