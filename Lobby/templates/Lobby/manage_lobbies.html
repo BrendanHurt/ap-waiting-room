@@ -12,25 +12,16 @@
         </a>
         {% for lobby in lobbies %}
             <div class="lobby-card">
-                <p>Lobby Name: {{lobby.name}}</p>
-                <p>Lobby Start Date: {{lobby.start_date}}</p>
-                <label for="lobby-{{lobby.id}}">
-                    Async Lobby
-                </label>
-                <input type="checkbox" 
-                    id="lobby-{{lobby.id}}"
-                    name="is_async"
-                    {% if lobby.is_async %}
-                        checked
-                    {% endif %}
-                    diabled
-                >
-                {% if lobby.description %}
-                    <p>Description:</p>
-                    <p>{{lobby.description}}</p>
-                {% endif %}
+                {% include "Lobby/lobby_info.html" %}
+                <br>
+                <a href="{% url 'Lobby:view_lobby' lobby.id %}">View Lobby</a>
+                <br>
                 <a href="{% url 'Lobby:delete_lobby' lobby.id %}">
                     Delete
+                </a>
+                <br>
+                <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
+                    Join
                 </a>
             </div>
         {% endfor %}
