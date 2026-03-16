@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.timezone import now
 from django.db import DatabaseError
+from django.contrib import messages
 
 from .models import Lobby, LobbyConnection
 from users.models import users
@@ -21,34 +22,64 @@ def lobby_browser(request):
     lobbies = Lobby.objects.filter(host_id=user_id)
     return render(request, "Lobby/lobby_browser.html", {"lobbies": lobbies})
 
-def new_lobby_form(request):
-    return render(request, "Lobby/create_lobby.html")
+#Handles both creation & updating of lobbies
+#Gets the default values for the model. Then, if there is a lobby_id passed in,
+#overwrites those values with the lobby's data.
+def lobby_form(request, lobby_id=None):
+    lobby_name = Lobby._meta.get_field("name").get_default()
+    lobby_start_date = Lobby._meta.get_field("start_date").get_default()
+    lobby_description = Lobby._meta.get_field("description").get_default()
+    lobby_async = Lobby._meta.get_field("is_async").get_default()
 
-def insert_lobby(request):
+    if (lobby_id is not None):
+        lobby = get_object_or_404(Lobby, pk=lobby_id)
+        lobby_name = lobby.name
+        lobby_start_date = lobby.start_date.date()
+        lobby_description = lobby.description
+        lobby_async = lobby.is_async
+
+    return render(
+        request,
+        "Lobby/lobby_form.html",
+        {
+            "lobby_id": lobby_id,
+            "lobby_name": lobby_name,
+            "lobby_start_date": lobby_start_date,
+            "lobby_description": lobby_description,
+            "lobby_async": lobby_async,
+        })
+
+# TODO: Add logging to form submissions, successful or not
+def submit_lobby(request, lobby_id=None):
     user = get_object_or_404(users, pk=request.session.get("user_id"))
 
+    lobby = None
+    if (lobby_id is not None):
+        lobby = get_object_or_404(Lobby, pk=lobby_id)
+    else:
+        lobby = Lobby()
+        lobby.host_id = user
+
+    lobby_name = request.POST.get("name")
+    lobby_start_date = request.POST.get("start_date")
+    lobby_description = request.POST.get("description")
     async_val = False
     if request.POST.get("is_async"):
         async_val = True
 
-    lobby_name = request.POST.get("name")
-    if not lobby_name:
-        lobby_name = Lobby._meta.get_field("name").get_default()
-    
-    new_lobby = Lobby(
-        host_id=user,
-        name=lobby_name,
-        start_date=request.POST["start_date"],
-        is_async = async_val,
-        description=request.POST["description"],
-    )
-    new_lobby.save()
+    lobby.name = lobby_name
+    lobby.start_date = lobby_start_date
+    lobby.description = lobby_description
+    lobby.is_async = async_val
+
+    lobby.save()
     return HttpResponseRedirect(
         reverse(
-            "Lobby:manage_lobbies",
+            "Lobby:lobby_browser",
             args=()
         )
     )
+    
 
 def delete_lobby(request, lobby_id):
     lobby = Lobby.objects.get(pk=lobby_id)

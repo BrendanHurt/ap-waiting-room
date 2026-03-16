@@ -7,7 +7,7 @@
     <body>
         {% include "home/nav.html" %}
         <h1>Lobbies</h1>
-        <a href="{% url 'Lobby:create_lobby' %}">
+        <a href="{% url 'Lobby:lobby_form' %}">
             Host a new Lobby
         </a>
         {% for lobby in lobbies %}
@@ -23,6 +23,8 @@
                 <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
                     Join
                 </a>
+                <br>
+                <a href="{% url 'Lobby:lobby_form' lobby.id %}">Edit Lobby</a>
             </div>
         {% endfor %}
     </body>
