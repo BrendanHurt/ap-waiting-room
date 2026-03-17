@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.db import DatabaseError
 from django.contrib import messages
+from django.db.models.functions import Extract
 
 from .models import Lobby, LobbyConnection
 from users.models import users
@@ -34,20 +35,25 @@ def lobby_form(request, lobby_id=None):
     if (lobby_id is not None):
         lobby = get_object_or_404(Lobby, pk=lobby_id)
         lobby_name = lobby.name
-        lobby_start_date = lobby.start_date.date()
+        lobby_start_date = lobby.start_date.isoformat()
         lobby_description = lobby.description
         lobby_async = lobby.is_async
+
+    context = {
+        "lobby_id": lobby_id,
+        "lobby_name": lobby_name,
+        "lobby_start_date": lobby_start_date,
+        "lobby_description": lobby_description,
+        "lobby_async": lobby_async,
+    }
+
+    print(context)
 
     return render(
         request,
         "Lobby/lobby_form.html",
-        {
-            "lobby_id": lobby_id,
-            "lobby_name": lobby_name,
-            "lobby_start_date": lobby_start_date,
-            "lobby_description": lobby_description,
-            "lobby_async": lobby_async,
-        })
+        context,
+    )
 
 # TODO: Add logging to form submissions, successful or not
 def submit_lobby(request, lobby_id=None):
