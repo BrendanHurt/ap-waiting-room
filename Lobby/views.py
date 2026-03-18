@@ -66,17 +66,11 @@ def submit_lobby(request, lobby_id=None):
         lobby = Lobby()
         lobby.host_id = user
 
-    lobby_name = request.POST.get("name")
-    lobby_start_date = request.POST.get("start_date")
-    lobby_description = request.POST.get("description")
+    lobby.name = request.POST.get("name")
+    lobby.start_date = request.POST.get("start_date")
+    lobby.description = request.POST.get("description")
     async_val = False
-    if request.POST.get("is_async"):
-        async_val = True
-
-    lobby.name = lobby_name
-    lobby.start_date = lobby_start_date
-    lobby.description = lobby_description
-    lobby.is_async = async_val
+    lobby.is_async = True if request.POST.get("is_async") else False
 
     lobby.save()
     return HttpResponseRedirect(
