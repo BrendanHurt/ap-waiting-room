@@ -12,6 +12,11 @@
             <p>Slot Name:<br>{{ yaml.slot }}</p>
             <p>Description:<br>{{ yaml.description }}</p>
             <button>Download</button>
+            <br><br>
+            <a href="{% url 'user_yamls:yaml_form' yaml.id %}">
+                Edit
+            </a>
+            <br><br>
             <a href="{% url 'user_yamls:del' yaml.id %}">
                 Delete
             </a>

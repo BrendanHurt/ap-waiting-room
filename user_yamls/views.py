@@ -15,37 +15,63 @@ def index(request, user_id):
     )
     #return HttpResponse('This is the index page for yamls')
 
-def yaml_form(request):
-    return render(request, 'user_yamls/add_yaml.html')
+def yaml_form(request, yaml_id=None):
+    yaml_slot = "Slot Name"
 
-def add(request):
+    slot = user_yamls._meta.get_field("slot").get_default()
+    game_name = user_yamls._meta.get_field("game_name").get_default()
+    description = ""
+    game_options = ""
+
+    if (yaml_id is not None):
+        yaml = get_object_or_404(user_yamls, pk=yaml_id)
+        slot = yaml.slot
+        game_name = yaml.game_name
+        description = yaml.description
+        game_options = yaml.game_options
+    print (slot)
+    return render( 
+        request,
+        'user_yamls/yaml_form.html',
+        {
+            "yaml_id": yaml_id,
+            "yaml_slot": slot,
+            "yaml_game_name": game_name,
+            "yaml_description": description,
+            "yaml_game_options": game_options
+        },
+    )
+
+def submit_yaml(request, yaml_id=None):
     #get the user_id
     #get the slot name
     #get the game name
     #get the description, emtpy string if none
     #get the options
-    try:
-        user = get_object_or_404(
-            users,
-            pk=request.session.get("user_id")
-        )
-        new_yaml = user_yamls(
-            user_id = user,
-            slot = request.POST["slot"],
-            game_name = request.POST["game_name"],
-            description = request.POST["description"],
-            game_options = request.POST["game_options"]
-        )
+    user = get_object_or_404(
+        users,
+        pk=request.session.get("user_id")
+    )
 
-        new_yaml.save()
-        return HttpResponseRedirect(
-            reverse(
-                "user_yamls:view_yamls",
-                args=(user.id,)
-            )
+    yaml = None
+    if (yaml_id is not None):
+        yaml = get_object_or_404(user_yamls, pk=yaml_id)
+    else:
+        yaml = user_yamls()
+        yaml.user_id = user
+    
+    yaml.slot = request.POST["slot"]
+    yaml.game_name = request.POST["game_name"]
+    yaml.description = request.POST["description"]
+    yaml.game_options = request.POST["game_options"]
+
+    yaml.save()
+    return HttpResponseRedirect(
+        reverse(
+            "user_yamls:view_yamls",
+            args=(user.id,)
         )
-    except DatabaseError:
-        return HttpResponse(DatabaseError)
+    )
 
 def delete_yaml(request, yaml_id):
     yaml = user_yamls.objects.get(pk = yaml_id)
