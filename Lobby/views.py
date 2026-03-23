@@ -86,7 +86,7 @@ def delete_lobby(request, lobby_id):
     lobby.delete()
     return HttpResponseRedirect(
         reverse(
-            "Lobby:manage_lobbies",
+            "Lobby:lobby_browser",
             args=()
         )
     )
@@ -126,8 +126,13 @@ def select_yamls(request, lobby_id):
 
 def join_lobby(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
-    yaml_ids = request.POST["yaml_ids"]
-
+    yaml_ids = request.POST.get("yaml_ids")
+    if yaml_ids is None:
+        messages.error(request, "You must select at least one YAML to join a lobby")
+        return HttpResponseRedirect(
+            reverse("Lobby:start_lobby_join", args=(lobby.id,))
+        )
+    
     for yaml_id in yaml_ids:
         yaml = get_object_or_404(user_yamls, pk=yaml_id)
         try:
