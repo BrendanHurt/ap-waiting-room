@@ -114,12 +114,14 @@ def view_lobby(request, lobby_id):
 #----------------------------------------------
 # Lobby Connection Views
 def select_yamls(request, lobby_id):
-    yaml_list = user_yamls.objects.filter(pk=request.session.get("user_id"))
+    yaml_list = user_yamls.objects.filter(
+        user_id=request.session.get("user_id")
+    )
     request.session["lobby_id"] = lobby_id
     return HttpResponse(
         render(
             request,
-            "Lobby/select_yaml.html",
+            "Lobby/join_lobby_form.html",
             {"yaml_list": yaml_list, "lobby_id": lobby_id}
         ),
     )

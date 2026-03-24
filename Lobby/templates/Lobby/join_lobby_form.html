@@ -9,18 +9,22 @@
         <form action="{% url 'Lobby:join_lobby' lobby_id %}" method="post">
             {% csrf_token %}
             {% for yaml in yaml_list %}
+            <fieldset>
                 <div>
                     <p>Game Name: {{yaml.game_name}}</p>
                     <p>Slot Name: {{yaml.slot}}</p>
-                    <p>Description:<br>{{yaml.description}}</p>
+                    <p>Description:<br>{{yaml.description}}</p>    
                     <p>Settings:<br>{{yaml.game_options}}</p>
                     <input type="checkbox"
                         name="yaml_ids"
                         value="{{ yaml.id }}"
                         id="yaml{{ forloop.counter }}"
                     >
-                    <label for="yaml{{ forloop.counter }}">Add this game</label>
+                    <label for="yaml{{ forloop.counter }}">
+                        Add this game
+                    </label>
                 </div>
+                </fieldset>
             {% endfor %}
             {% if messages %}
                 {% for message in messages %}
