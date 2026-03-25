@@ -3,12 +3,12 @@ from django.shortcuts import render, get_object_or_404
 from django.db import DatabaseError
 from django.urls import reverse
 
-from users.models import users
+from users.models import UserAccount
 from .models import user_yamls
 
 # Create your views here.
 def index(request, user_id):
-    user = get_object_or_404(users, pk=user_id)
+    user = get_object_or_404(UserAccount, pk=user_id)
     return render(request,
         'user_yamls/view_yamls.html',
         { "user": user }
@@ -49,7 +49,7 @@ def submit_yaml(request, yaml_id=None):
     #get the description, emtpy string if none
     #get the options
     user = get_object_or_404(
-        users,
+        UserAccount,
         pk=request.session.get("user_id")
     )
 
