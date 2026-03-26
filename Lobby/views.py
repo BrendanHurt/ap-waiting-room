@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.db.models.functions import Extract
 
 from .models import Lobby, LobbyConnection
-from users.models import UserAccount
+from users.models import users
 from user_yamls.models import user_yamls
 
 #----------------------------------------------
@@ -57,10 +57,7 @@ def lobby_form(request, lobby_id=None):
 
 # TODO: Add logging to form submissions, successful or not
 def submit_lobby(request, lobby_id=None):
-    user = get_object_or_404(
-        UserAccount, 
-        pk=request.session.get("user_id")
-    )
+    user = get_object_or_404(users, pk=request.session.get("user_id"))
 
     lobby = None
     if (lobby_id is not None):

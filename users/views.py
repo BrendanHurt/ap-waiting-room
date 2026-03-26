@@ -4,11 +4,11 @@ from django.urls import reverse
 from django.db import DatabaseError
 from django.contrib import messages
 
-from .models import UserAccount
+from .models import users
 
 def account(request, user_id):
     try:
-        user = UserAccount.objects.get(pk=request.session["user_id"])
+        user = users.objects.get(pk=request.session["user_id"])
         return render(request,
             'users/account.html',
             {"user": user,}
@@ -17,7 +17,7 @@ def account(request, user_id):
         return HttpResponse('Error accessing account page')
 
 def user_auth(request):
-    user = UserAccount.objects.filter(
+    user = users.objects.filter(
         name = request.POST["name"]
     )
 

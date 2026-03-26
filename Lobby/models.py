@@ -1,12 +1,12 @@
 from django.db import models
 from django.utils.timezone import now
 
-from users.models import UserAccount
+from users.models import users
 from user_yamls.models import user_yamls
 
 # Create your models here.
 class Lobby(models.Model):
-    host_id = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    host_id = models.ForeignKey(users, on_delete=models.CASCADE)
     name = models.CharField(default="Lobby")
     start_date = models.DateField(default=now)
     is_async = models.BooleanField(default=False)
