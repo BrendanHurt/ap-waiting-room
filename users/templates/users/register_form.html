@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<head lang="en-US">
+    <meta charset="utf-8">
+    <title>User Registration</title>
+</head>
+<body>
+    <form action="{% url 'users:register_user' %}" method="post">
+        {% csrf_token %}
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username"><br>
+        <lable for="email">Email</lable>
+        <input type="text" name="email" id="email">
+        <p>Emails will be used exclusively for account recovery.</p>
+        <label for="password">Password</label>
+        <input type="text" name="password" id="password"><br>
+        <label for="ap_token">Archipelago Token</label>
+        <input type="text" name="ap_token" id="ap_token"><br>
+        <p>If you'd rather not create another password for another account,
+            you can use the ID that Archipelago generates for you when you 
+            use the site. It can be found under the "User Content" tab in the
+            "Getting Started" menu. Then, selecting the "Session page" link.
+            At least a password or an Archipelago token must be used, and both
+            can be used.
+        </p>
+        <input type="submit" value="Sign Up">
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags}}">{{ message }}</div>
+        {% endfor %}
+    </form>
+</body>

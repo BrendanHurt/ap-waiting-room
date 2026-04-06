@@ -38,3 +38,21 @@ def logout(request):
             args=()
         )
     )
+
+def register_form(request):
+    return render(request, "users/register_form.html")
+
+def register_user(request):
+    newUser = users()
+    newUser.name = request.POST.get("username")
+    newUser.email = request.POST.get("email")
+    newUser.status = "None"
+    newUser.save()
+
+    request.session["user_id"] = newUser.id
+    return HttpResponseRedirect(
+        reverse(
+            "home:home",
+            args=()
+        )
+    )

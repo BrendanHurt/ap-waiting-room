@@ -13,7 +13,7 @@
         </a>
     {% else %}
         <a href="{% url 'home:login'%}">Log in</a>
-        <a>Sign up</a>
+        <a href="{% url 'users:sign_up' %}">Sign up</a>
     {% endif %}
 </body>
 </html>
