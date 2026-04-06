@@ -1,9 +1,9 @@
 from django.db import models
-from users.models import users
+from users.models import UserAccount
 
 # Create your models here.
 class user_yamls(models.Model):
-    user_id = models.ForeignKey(users, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
     slot = models.CharField(max_length=16, default="Default Slot")
     game_name = models.CharField(max_length=50, default="Default Game Name")
     description = models.CharField(max_length=1000, null=True)
