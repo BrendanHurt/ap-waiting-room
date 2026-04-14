@@ -4,11 +4,11 @@ from django.urls import reverse
 from django.db import DatabaseError
 from django.contrib import messages
 
-from .models import UserAccount
+from django.contrib.auth.models import User
 
 def account(request, user_id):
     try:
-        user = UserAccount.objects.get(pk=request.session["user_id"])
+        user = User.objects.get(pk=request.session["user_id"])
         return render(request,
             'users/account.html',
             {"user": user,}
@@ -17,8 +17,8 @@ def account(request, user_id):
         return HttpResponse('Error accessing account page')
 
 def user_auth(request):
-    user = UserAccount.objects.filter(
-        name = request.POST["name"]
+    user = User.objects.filter(
+        username = request.POST["username"]
     )
 
     if user:
@@ -43,10 +43,14 @@ def register_form(request):
     return render(request, "users/register_form.html")
 
 def register_user(request):
-    newUser = UserAccount()
-    newUser.name = request.POST.get("username")
+
+    #password = request.POST.get("password")
+    #ap_token = request.POST.get("ap_token")
+
+    newUser = User()
+    newUser.username = request.POST.get("username")
     newUser.email = request.POST.get("email")
-    newUser.status = "None"
+    newUser.password = request.POST.get("password")
     newUser.save()
 
     request.session["user_id"] = newUser.id

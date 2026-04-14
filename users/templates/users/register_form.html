@@ -6,13 +6,13 @@
 <body>
     <form action="{% url 'users:register_user' %}" method="post">
         {% csrf_token %}
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username"><br>
+        <label for="username" required>Username</label>
+        <input type="text" name="username" id="username" required><br>
         <lable for="email">Email</lable>
         <input type="text" name="email" id="email">
         <p>Emails will be used exclusively for account recovery.</p>
         <label for="password">Password</label>
-        <input type="text" name="password" id="password"><br>
+        <input type="text" name="password" id="password" required><br>
         <label for="ap_token">Archipelago Token</label>
         <input type="text" name="ap_token" id="ap_token"><br>
         <p>If you'd rather not create another password for another account,
