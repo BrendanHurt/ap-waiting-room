@@ -47,8 +47,6 @@ def lobby_form(request, lobby_id=None):
         "lobby_async": lobby_async,
     }
 
-    print(context)
-
     return render(
         request,
         "Lobby/lobby_form.html",
