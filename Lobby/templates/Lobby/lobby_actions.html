@@ -1,0 +1,29 @@
+{% load guardian_tags %}
+<!DOCTYPE html>
+<head lang="en-US">
+    <meta charset="utf-8">
+</head>
+<body>
+    {% get_obj_perms user for lobby as "lobby_perms" %}
+
+    {% if "view_lobby" in lobby_perms %}
+        <br>
+        <a href="{% url 'Lobby:view_lobby' lobby.id %}">View Lobby</a>
+    {% endif %}
+
+    {% if "delete_lobby" in lobby_perms %}
+        <br>
+        <a href="{% url 'Lobby:delete_lobby' lobby.id %}">
+            Delete
+        </a>
+    {% endif %}
+
+    {% if "change_lobby" in lobby_perms %}
+        <br>
+        <a href="{% url 'Lobby:lobby_form' lobby.id %}">Edit Lobby</a>
+    {% endif %}
+    <br>
+    <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
+        Join
+    </a>
+</body>

@@ -6,6 +6,8 @@
     </head>
     <body>
         {% include "home/nav.html" %}
+        
+        
         <h1>Lobbies</h1>
         <a href="{% url 'Lobby:lobby_form' %}">
             Host a new Lobby
@@ -13,18 +15,7 @@
         {% for lobby in lobbies %}
             <div class="lobby-card">
                 {% include "Lobby/lobby_info.html" %}
-                <br>
-                <a href="{% url 'Lobby:view_lobby' lobby.id %}">View Lobby</a>
-                <br>
-                <a href="{% url 'Lobby:delete_lobby' lobby.id %}">
-                    Delete
-                </a>
-                <br>
-                <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
-                    Join
-                </a>
-                <br>
-                <a href="{% url 'Lobby:lobby_form' lobby.id %}">Edit Lobby</a>
+                {% include "Lobby/lobby_actions.html" %}
             </div>
         {% endfor %}
     </body>

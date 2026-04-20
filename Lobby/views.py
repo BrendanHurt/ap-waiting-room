@@ -5,6 +5,10 @@ from django.utils.timezone import now
 from django.db import DatabaseError
 from django.contrib import messages
 from django.db.models.functions import Extract
+#from django.template import RequestContext
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from guardian.shortcuts import assign_perm
 
 from .models import Lobby, LobbyConnection
 from django.contrib.auth.models import User
@@ -16,12 +20,21 @@ from user_yamls.models import user_yamls
 # Create your views here.
 def lobby_browser(request):
     user_id = request.session.get("user_id")
-    filters = {
-        "Hosting": True,
-        "Joined": True,
-    }
-    lobbies = Lobby.objects.filter(host_id=user_id)
-    return render(request, "Lobby/lobby_browser.html", {"lobbies": lobbies})
+    user = None
+    if (User.objects.filter(id=user_id)):
+        user = User.objects.filter(id=user_id).first()
+
+    #add lobby filtering later
+    lobbies = Lobby.objects.all()
+
+    return render(
+        request,
+        "Lobby/lobby_browser.html",
+        {
+            "user": user,
+            "lobbies": lobbies,
+        },
+    )
 
 #Handles both creation & updating of lobbies
 #Gets the default values for the model. Then, if there is a lobby_id passed in,
@@ -77,7 +90,14 @@ def submit_lobby(request, lobby_id=None):
             args=()
         )
     )
-    
+
+@receiver(post_save, sender=Lobby)
+def assign_host_perms(sender, instance, created, **kwargs):
+    if created:
+        assign_perm("change_lobby", instance.host_id, instance)
+        assign_perm("delete_lobby", instance.host_id, instance)
+        assign_perm("view_lobby", instance.host_id, instance)
+
 
 def delete_lobby(request, lobby_id):
     lobby = Lobby.objects.get(pk=lobby_id)
