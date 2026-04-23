@@ -1,3 +1,4 @@
+{% load guardian_tags %}
 <!DOCTYPE html>
 <html>
     <head lang="en-US">
@@ -7,14 +8,25 @@
     <body>
         {% include 'home/nav.html' %}
         {% include 'Lobby/lobby_info.html' %}
-        {% for yaml in yamls %}
+        {% for conn in conns %}
             <fieldset>
-                <p>Game: {{ yaml.game_name }}</p>
+                <p>Game: {{ conn.player_yaml.game_name }}</p>
                 <p>Description:</p>
-                <p>{{ yaml.description }}</p>
+                <p>{{ conn.player_yaml.description }}</p>
                 <p>Randomizer Settings:</p>
-                <p>{{ yaml.game_options }}</p>
+                <p>{{ conn.player_yaml.game_options }}</p>
             </fieldset>
+            {% get_obj_perms user for conn as "conn_perms" %}
+            {% if "delete_lobbyconnection" in conn_perms %}
+                <a href="{% url 'Lobby:delete_connection' conn.id %}">
+                    Remove Game
+                </a>
+            {% endif %}
+            {% if "change_lobbyconnection" in conn_perms %}
+                <a href="{% url 'Lobby:edit_connection' conn.id %}">
+                    Edit Game Settings
+                </a>
+            {% endif %}
         {% endfor %}
     </body>
 </html>

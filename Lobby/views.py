@@ -4,8 +4,6 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.db import DatabaseError
 from django.contrib import messages
-from django.db.models.functions import Extract
-#from django.template import RequestContext
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from guardian.shortcuts import assign_perm
@@ -116,16 +114,19 @@ def view_lobby(request, lobby_id):
         #find yaml by user
     #add those to the context & send to the lobby info template
     lobby = get_object_or_404(Lobby, pk=lobby_id)
-    yamls = user_yamls.objects.filter(
-        lobbyconnection__lobby_id=lobby_id
-
+    conns = LobbyConnection.objects.filter(
+        lobby_id_id=lobby_id
     )
+    user = None
+    if (request.session.has_key("user_id")):
+        user = get_object_or_404(User, pk=request.session.get("user_id"));
+    #ZZZ Figuring out how to display permitted actions for connection
     
     return HttpResponse(
         render(
             request, 
             "Lobby/lobby_connections_info.html",
-            {"lobby": lobby, "yamls": yamls}
+            {"lobby": lobby, "conns": conns, "user": user,}
         )
     )
 
@@ -163,9 +164,37 @@ def join_lobby(request, lobby_id):
         except DatabaseError:
             messages.error(request, "Failed to send yaml %s" %yaml_id)
 
+
     return HttpResponseRedirect(
         reverse(
             "Lobby:view_lobby",
             kwargs={"lobby_id": lobby_id}
         )
     )
+
+def delete_connection(request, slot_id):
+    lobby_conn = get_object_or_404(LobbyConnection, pk=slot_id)
+    lobby = lobby_conn.lobby_id
+    lobby_conn.delete()
+    return HttpResponseRedirect(
+        reverse(
+            "Lobby:view_lobby",
+            kwargs={"lobby_id": lobby.id}
+        )
+    )
+
+def edit_connection(request, slot_id):
+    return HttpResponse("Temp Stub")
+
+@receiver(post_save, sender=LobbyConnection)
+def grant_view_lobby_permissions(sender, instance, created, **kwargs):
+    #ZZZ
+    #Add view lobby perm, if it doesn't already exist & a lobby connection is made
+    #Add edit and delete permissions to the lobby connection:
+    # -User can change the yaml used for the connection
+    # -User has access to deleting the connection
+    # -Removing the last connection doesn't revoke lobby view permissions,
+    #  only the host can "kick" a player
+    assign_perm("view_lobby", instance.player_yaml.user_id, instance.lobby_id)
+    assign_perm("change_lobbyconnection", instance.player_yaml.user_id, instance)
+    assign_perm("delete_lobbyconnection", instance.player_yaml.user_id, instance)
