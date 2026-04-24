@@ -16,7 +16,10 @@ def account(request, user_id):
     except KeyError:
         return HttpResponse('Error accessing account page')
 
-def user_auth(request):
+def login(request):
+    if (request.method != "POST"):
+        return render(request, "users/login.html")
+
     user = User.objects.filter(
         username = request.POST["username"]
     )

@@ -133,6 +133,13 @@ def view_lobby(request, lobby_id):
 #----------------------------------------------
 # Lobby Connection Views
 def select_yamls(request, lobby_id):
+    user_id = request.session.get("user_id")
+    if (user_id is None):
+        messages.error(request, "You must be signed in to join a lobby")
+        return HttpResponseRedirect(
+            reverse("users:login", args=())
+        )
+
     yaml_list = user_yamls.objects.filter(
         user_id=request.session.get("user_id")
     )
