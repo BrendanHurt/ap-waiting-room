@@ -4,6 +4,7 @@
     <title>User Registration</title>
 </head>
 <body>
+    {% include "home/nav.html" %}
     <form action="{% url 'users:register_user' %}" method="post">
         {% csrf_token %}
         <label for="username" required>Username</label>
