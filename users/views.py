@@ -4,8 +4,11 @@ from django.urls import reverse
 from django.db import DatabaseError
 from django.contrib import messages
 
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
+@login_required(login_url="/login/")
 def account(request, user_id):
     try:
         user = User.objects.get(pk=request.session["user_id"])
@@ -16,25 +19,29 @@ def account(request, user_id):
     except KeyError:
         return HttpResponse('Error accessing account page')
 
-def login(request):
+def login_view(request):
+    return render(request, "users/login.html")
+
+def validate_auth(request):
     if (request.method != "POST"):
         return render(request, "users/login.html")
+    username = request.POST["username"]
+    password = request.POST["password"]
+    user = authenticate(request, username=username, password=password)
 
-    user = User.objects.filter(
-        username = request.POST["username"]
-    )
-
-    if user:
-        request.session['user_id'] = user[0].id
-        return account(request, user[0].id)
+    if user is not None:
+        request.session['user_id'] = user.id
+        login(request, user)
+        print(user.id)
+        return account(request, user.id)
     else:
-        messages.error(request, "Invalid username")
+        messages.error(request, "Invalid login")
+        return render(request, 'users/login.html')
 
-    return render(request, 'users/login.html')
-
-def logout(request):
-    if request.session.get("user_id"):
-        del request.session["user_id"]
+#ZZZ Need to figure out how to remove session ID, to *actually* sign out
+@login_required()
+def logout_view(request):
+    logout(request)
     return HttpResponseRedirect(
         reverse(
             "home:home",
@@ -50,11 +57,16 @@ def register_user(request):
     #password = request.POST.get("password")
     #ap_token = request.POST.get("ap_token")
 
-    newUser = User()
-    newUser.username = request.POST.get("username")
-    newUser.email = request.POST.get("email")
-    newUser.password = request.POST.get("password")
+    
+    username = request.POST.get("username")
+    email = request.POST.get("email")
+    password = request.POST.get("password")
+    newUser = User.objects.create_user(
+        username, email, password
+    )
     newUser.save()
+
+    authenticate(username)
 
     request.session["user_id"] = newUser.id
     return HttpResponseRedirect(

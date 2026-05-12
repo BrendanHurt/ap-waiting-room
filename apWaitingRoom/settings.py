@@ -114,6 +114,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+LOGIN_URL = '/login'
+
 # SECRET_KEY in local_settings
 # DEBUG in local_settings
 # DATABASE in local_settings

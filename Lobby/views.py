@@ -10,6 +10,7 @@ from guardian.shortcuts import assign_perm
 
 from .models import Lobby, LobbyConnection
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from user_yamls.models import user_yamls
 
 #----------------------------------------------
@@ -23,6 +24,10 @@ def lobby_browser(request):
         user = User.objects.filter(id=user_id).first()
 
     #add lobby filtering later
+    filters = None
+    if (request.method == "POST"):
+        #ZZZ adding filters
+        filters = "temp to get python off my back"
     lobbies = Lobby.objects.all()
 
     return render(
@@ -37,6 +42,7 @@ def lobby_browser(request):
 #Handles both creation & updating of lobbies
 #Gets the default values for the model. Then, if there is a lobby_id passed in,
 #overwrites those values with the lobby's data.
+@login_required(login_url="/login/") #ZZZ Need to add next into login's return call?
 def lobby_form(request, lobby_id=None):
     lobby_name = Lobby._meta.get_field("name").get_default()
     lobby_start_date = Lobby._meta.get_field("start_date").get_default()

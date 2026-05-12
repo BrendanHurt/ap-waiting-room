@@ -6,12 +6,14 @@
 </head>
 <body>
     {% include "home/nav.html" %}
-    <form action="{% url 'users:login' %}" method="post">
+    <form action="{% url 'users:validate_auth' %}" method="post">
         {% csrf_token %}
         <fieldset>
             <h1>Log in</h1>
             <label>Username</label>
             <input type="text" name="username" id="username">
+            <label>Password</label>
+            <input type="text" name="password" id="password">
         </fieldset>
         <input type="submit" value="Log in">
     </form>
