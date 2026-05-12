@@ -10,5 +10,4 @@ urlpatterns = [
         TemplateView.as_view(template_name = "home/homepage.html"),
         name="home"
     ),
-    path("login/", views.login, name="login"),
 ]

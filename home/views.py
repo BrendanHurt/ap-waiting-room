@@ -7,6 +7,3 @@ from django.shortcuts import render
 #    return render(request, 'home/homepage.html', context)
 def home(request):
     return render(request, 'home/homepage.html')
-
-def login(request):
-    return render(request, "users/login.html")
