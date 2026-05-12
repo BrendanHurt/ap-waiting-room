@@ -13,7 +13,15 @@
         <input type="text" name="email" id="email">
         <p>Emails will be used exclusively for account recovery.</p>
         <label for="password">Password</label>
-        <input type="text" name="password" id="password" required><br>
+        <input type="password" name="password" id="password">
+        <input type="checkbox" name="passVisToggle" onclick="toggleVisibility('password')">
+        <label for="passVisToggle">Show Password</label>
+        <br>
+        <label for="password">The same sassword, but like be FR this time</label>
+        <input type="password" name="checkPassword" id="checkPassword">
+        <input type="checkbox" name="againVisToggle" onclick="toggleVisibility('checkPassword')">
+        <label for="againVisToggle">Show Password</label>
+        <br>
         <label for="ap_token">Archipelago Token</label>
         <input type="text" name="ap_token" id="ap_token"><br>
         <p>If you'd rather not create another password for another account,
@@ -29,3 +37,12 @@
         {% endfor %}
     </form>
 </body>
+
+<script>
+    function toggleVisibility(elemID) {
+        elem = document.getElementById(elemID);
+        elem.type = (elem.type === "password") ? "text" : "password";
+    }
+</script>
+
+</html>

@@ -12,8 +12,11 @@
             <h1>Log in</h1>
             <label>Username</label>
             <input type="text" name="username" id="username">
+            <br>
             <label>Password</label>
-            <input type="text" name="password" id="password">
+            <input type="password" name="password" id="password">
+            <input type="checkbox" name="visToggle" onclick="toggleVisibility()">
+            <label for="visToggle">Show Password</label>
         </fieldset>
         <input type="submit" value="Log in">
     </form>
@@ -23,4 +26,12 @@
         {% endfor %}
     {% endif %}
 </body>
+
+<script>
+    function toggleVisibility() {
+        let x = document.getElementById("password");
+        x.type = (x.type === "password") ? "text" : "password";
+    }
+</script>
+
 </html>
