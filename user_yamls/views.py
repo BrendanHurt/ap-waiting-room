@@ -3,11 +3,13 @@ from django.shortcuts import render, get_object_or_404
 from django.db import DatabaseError
 from django.urls import reverse
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import user_yamls
 
 # Create your views here.
-def index(request, user_id):
+@login_required
+def view_yamls(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     return render(request,
         'user_yamls/view_yamls.html',
@@ -15,6 +17,7 @@ def index(request, user_id):
     )
     #return HttpResponse('This is the index page for yamls')
 
+@login_required
 def yaml_form(request, yaml_id=None):
     yaml_slot = "Slot Name"
 
@@ -73,6 +76,7 @@ def submit_yaml(request, yaml_id=None):
         )
     )
 
+@login_required
 def delete_yaml(request, yaml_id):
     yaml = user_yamls.objects.get(pk = yaml_id)
     yaml.delete()

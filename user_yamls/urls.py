@@ -4,7 +4,7 @@ from . import views
 
 app_name = "user_yamls"
 urlpatterns = [
-    path('<int:user_id>/', views.index, name='view_yamls'),
+    path('<int:user_id>/', views.view_yamls, name='view_yamls'),
     path('yaml/', views.yaml_form, name='yaml_form'),
     path('yaml/<slug:yaml_id>', views.yaml_form, name='yaml_form'),
     path('yaml/submit/', views.submit_yaml, name='submit_yaml'),
