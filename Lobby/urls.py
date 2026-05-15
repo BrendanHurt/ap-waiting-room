@@ -12,8 +12,8 @@ urlpatterns = [
     path("del/<int:lobby_id>", views.delete_lobby, name="delete_lobby"),
 
     path("<int:lobby_id>", views.view_lobby, name="view_lobby"),
-    path("<int:lobby_id>/join/yamls", views.select_yamls, name="start_lobby_join"),
-    path("<int:lobby_id>/join", views.join_lobby, name="join_lobby"),
+    path("<int:lobby_id>/join/yamls", views.join_lobby_view, name="start_lobby_join"),
+    path("<int:lobby_id>/join", views.validate_join_lobby, name="join_lobby"),
     path("slot/del/<int:slot_id>", views.delete_connection, name="delete_connection"),
     path("slot/edit/<int:slot_id>", views.edit_connection, name="edit_connection"),
 ]

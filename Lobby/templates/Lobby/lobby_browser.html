@@ -19,9 +19,15 @@
                     {% include "Lobby/lobby_actions.html" %}
                 {% endif %}
                 <br>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'users:login' %}?next={{ request.path }}">
+                    Login and join
+                </a>
+                {% else %}
                 <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
                     Join
                 </a>
+                {% endif %}
             </div>
         {% endfor %}
     </body>

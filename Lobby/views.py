@@ -42,7 +42,7 @@ def lobby_browser(request):
 #Handles both creation & updating of lobbies
 #Gets the default values for the model. Then, if there is a lobby_id passed in,
 #overwrites those values with the lobby's data.
-@login_required(login_url="/login/") #ZZZ Need to add next into login's return call?
+@login_required() #ZZZ Need to add next into login's return call?
 def lobby_form(request, lobby_id=None):
     lobby_name = Lobby._meta.get_field("name").get_default()
     lobby_start_date = Lobby._meta.get_field("start_date").get_default()
@@ -138,18 +138,14 @@ def view_lobby(request, lobby_id):
 
 #----------------------------------------------
 # Lobby Connection Views
-def select_yamls(request, lobby_id):
-    user_id = request.session.get("user_id")
-    if (user_id is None):
-        messages.error(request, "You must be signed in to join a lobby")
-        return HttpResponseRedirect(
-            reverse("users:login", args=())
-        )
-
+@login_required(redirect_field_name="next")
+def join_lobby_view(request, lobby_id):
+    user = request.user
     yaml_list = user_yamls.objects.filter(
-        user_id=request.session.get("user_id")
+        user_id=user
     )
     request.session["lobby_id"] = lobby_id
+
     return HttpResponse(
         render(
             request,
@@ -158,7 +154,8 @@ def select_yamls(request, lobby_id):
         ),
     )
 
-def join_lobby(request, lobby_id):
+@login_required
+def validate_join_lobby(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     yaml_ids = request.POST.get("yaml_ids")
     if yaml_ids is None:

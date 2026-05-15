@@ -20,7 +20,12 @@ def account(request, user_id):
         return HttpResponse('Error accessing account page')
 
 def login_view(request):
-    return render(request, "users/login.html")
+    next_url = request.GET.get("next") 
+    return render(
+        request,
+        "users/login.html",
+        {"next_url": next_url}
+    )
 
 def validate_auth(request):
     if (request.method != "POST"):
@@ -32,8 +37,7 @@ def validate_auth(request):
     if user is not None:
         request.session['user_id'] = user.id
         login(request, user)
-        print(user.id)
-        return account(request, user.id)
+        return HttpResponseRedirect(request.POST.get("next_url"))
     else:
         messages.error(request, "Invalid login")
         return render(request, 'users/login.html')
