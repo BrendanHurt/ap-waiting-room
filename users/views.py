@@ -20,7 +20,7 @@ def account(request, user_id):
         return HttpResponse('Error accessing account page')
 
 def login_view(request):
-    next_url = request.GET.get("next") 
+    next_url = request.GET.get("next") or "/"
     return render(
         request,
         "users/login.html",
