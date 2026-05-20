@@ -15,18 +15,16 @@
         {% for lobby in lobbies %}
             <div class="lobby-card">
                 {% include "Lobby/lobby_info.html" %}
-                {% if user is not None %}
+                {% if user.is_authenticated %}
                     {% include "Lobby/lobby_actions.html" %}
-                {% endif %}
-                <br>
-                {% if not user.is_authenticated %}
-                <a href="{% url 'users:login' %}?next={{ request.path }}">
-                    Login and join
-                </a>
+                    <br>
+                    <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
+                        Join
+                    </a>
                 {% else %}
-                <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
-                    Join
-                </a>
+                    <a href="{% url 'users:login' %}?next={{ request.path }}">
+                        Login and join
+                    </a>
                 {% endif %}
             </div>
         {% endfor %}

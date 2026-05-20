@@ -18,11 +18,6 @@ from user_yamls.models import user_yamls
 
 # Create your views here.
 def lobby_browser(request):
-    user_id = request.session.get("user_id")
-    user = None
-    if (User.objects.filter(id=user_id)):
-        user = User.objects.filter(id=user_id).first()
-
     #add lobby filtering later
     filters = None
     if (request.method == "POST"):
@@ -34,7 +29,6 @@ def lobby_browser(request):
         request,
         "Lobby/lobby_browser.html",
         {
-            "user": user,
             "lobbies": lobbies,
         },
     )
@@ -144,7 +138,7 @@ def join_lobby_view(request, lobby_id):
     yaml_list = user_yamls.objects.filter(
         user_id=user
     )
-    request.session["lobby_id"] = lobby_id
+    #request.session["lobby_id"] = lobby_id
 
     return HttpResponse(
         render(
