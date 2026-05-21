@@ -16,7 +16,7 @@
                 <p>Randomizer Settings:</p>
                 <p>{{ conn.player_yaml.game_options }}</p>
             </fieldset>
-            {% get_obj_perms user for conn as "conn_perms" %}
+            {% get_obj_perms request.user for conn as "conn_perms" %}
             {% if "delete_lobbyconnection" in conn_perms %}
                 <a href="{% url 'Lobby:delete_connection' conn.id %}">
                     Remove Game

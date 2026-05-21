@@ -66,14 +66,13 @@ def lobby_form(request, lobby_id=None):
 
 # TODO: Add logging to form submissions, successful or not
 def submit_lobby(request, lobby_id=None):
-    user = get_object_or_404(User, pk=request.session.get("user_id"))
 
     lobby = None
     if (lobby_id is not None):
         lobby = get_object_or_404(Lobby, pk=lobby_id)
     else:
         lobby = Lobby()
-        lobby.host_id = user
+        lobby.host_id = request.user
 
     lobby.name = request.POST.get("name")
     lobby.start_date = request.POST.get("start_date")
@@ -109,24 +108,17 @@ def delete_lobby(request, lobby_id):
 
 
 def view_lobby(request, lobby_id):
-    #get the lobby
-    #then, get any yamls the current user has sent to this lobby
-        #find yaml by user
-    #add those to the context & send to the lobby info template
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     conns = LobbyConnection.objects.filter(
         lobby_id_id=lobby_id
     )
-    user = None
-    if (request.session.has_key("user_id")):
-        user = get_object_or_404(User, pk=request.session.get("user_id"));
     #ZZZ Figuring out how to display permitted actions for connection
     
     return HttpResponse(
         render(
             request, 
             "Lobby/lobby_connections_info.html",
-            {"lobby": lobby, "conns": conns, "user": user,}
+            {"lobby": lobby, "conns": conns,}
         )
     )
 
@@ -134,11 +126,9 @@ def view_lobby(request, lobby_id):
 # Lobby Connection Views
 @login_required(redirect_field_name="next")
 def join_lobby_view(request, lobby_id):
-    user = request.user
     yaml_list = user_yamls.objects.filter(
-        user_id=user
+        user_id=request.user
     )
-    #request.session["lobby_id"] = lobby_id
 
     return HttpResponse(
         render(
