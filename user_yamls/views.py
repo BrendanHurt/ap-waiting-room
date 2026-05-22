@@ -10,10 +10,10 @@ from .models import user_yamls
 # Create your views here.
 @login_required
 def view_yamls(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
+#    user = get_object_or_404(User, pk=user_id)
     return render(request,
         'user_yamls/view_yamls.html',
-        { "user": user }
+        #{ "user": user }
     )
     #return HttpResponse('This is the index page for yamls')
 
@@ -32,7 +32,7 @@ def yaml_form(request, yaml_id=None):
         game_name = yaml.game_name
         description = yaml.description
         game_options = yaml.game_options
-    print (slot)
+    
     return render( 
         request,
         'user_yamls/yaml_form.html',
@@ -51,17 +51,17 @@ def submit_yaml(request, yaml_id=None):
     #get the game name
     #get the description, emtpy string if none
     #get the options
-    user = get_object_or_404(
-        User,
-        pk=request.session.get("user_id")
-    )
+    #user = get_object_or_404(
+    #    User,
+    #    pk=request.session.get("user_id")
+    #)
 
     yaml = None
     if (yaml_id is not None):
         yaml = get_object_or_404(user_yamls, pk=yaml_id)
     else:
         yaml = user_yamls()
-        yaml.user_id = user
+        yaml.user_id = request.user
     
     yaml.slot = request.POST["slot"]
     yaml.game_name = request.POST["game_name"]
@@ -72,7 +72,7 @@ def submit_yaml(request, yaml_id=None):
     return HttpResponseRedirect(
         reverse(
             "user_yamls:view_yamls",
-            args=(user.id,)
+            args=(request.user.id,)
         )
     )
 
@@ -83,7 +83,7 @@ def delete_yaml(request, yaml_id):
     return HttpResponseRedirect(
         reverse(
             "user_yamls:view_yamls",
-            args=(request.session.get("user_id"),)
+            args=(request.user.id,)
         )
     )
     
