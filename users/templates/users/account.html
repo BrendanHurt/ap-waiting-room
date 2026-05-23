@@ -6,8 +6,8 @@
 <body>
     {% include "home/nav.html" %}
     <h1>Account</h1>
-    <p>Username: {{ user.username }}</p>
-    <p>Email: {{ user.email }}</p>
+    <p>Username: {{ request.user.username }}</p>
+    <p>Email: {{ request.user.email }}</p>
     <a href="{% url 'user_yamls:view_yamls' user.id %}">YAMLs</a>
     <a href="{% url 'Lobby:lobby_browser' %}">Lobbies</a>
     <a href="{% url 'users:logout' %}">Log Out</a>

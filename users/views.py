@@ -9,12 +9,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
 @login_required()
-def account(request, user_id):
+def account(request):
     try:
-        user = User.objects.get(pk=request.session["user_id"])
         return render(request,
             'users/account.html',
-            {"user": user,}
         )
     except KeyError:
         return HttpResponse('Error accessing account page')
@@ -35,7 +33,6 @@ def validate_auth(request):
     user = authenticate(request, username=username, password=password)
 
     if user is not None:
-        request.session['user_id'] = user.id
         login(request, user)
         return HttpResponseRedirect(request.POST.get("next_url"))
     else:
@@ -57,11 +54,6 @@ def register_form(request):
     return render(request, "users/register_form.html")
 
 def register_user(request):
-
-    #password = request.POST.get("password")
-    #ap_token = request.POST.get("ap_token")
-
-    
     username = request.POST.get("username")
     email = request.POST.get("email")
     password = request.POST.get("password")
@@ -78,7 +70,6 @@ def register_user(request):
         user = authenticate(username=username, password=password)
         login(request, user)
 
-        request.session["user_id"] = newUser.id
         return HttpResponseRedirect(
             reverse(
                 "home:home",
