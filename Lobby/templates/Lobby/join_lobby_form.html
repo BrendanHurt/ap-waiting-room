@@ -8,22 +8,30 @@
         <h1>Select the YAMLs for the game(s) you want to use in this lobby</h1>
         <form action="{% url 'Lobby:join_lobby' lobby_id %}" method="post">
             {% csrf_token %}
+            <a href="{% url 'user_yamls:view_yamls' request.user.id %}">
+                Manage Yamls
+            </a>
+            <br>
             {% for yaml in yaml_list %}
-            <fieldset>
-                <div>
-                    <p>Game Name: {{yaml.game_name}}</p>
-                    <p>Slot Name: {{yaml.slot}}</p>
-                    <p>Description:<br>{{yaml.description}}</p>    
-                    <p>Settings:<br>{{yaml.game_options}}</p>
-                    <input type="checkbox"
-                        name="yaml_ids"
-                        value="{{ yaml.id }}"
-                        id="yaml{{ forloop.counter }}"
-                    >
-                    <label for="yaml{{ forloop.counter }}">
-                        Add this game
-                    </label>
-                </div>
+                <fieldset>
+                    <div>
+                        <p>Game Name: {{yaml.game_name}}</p>
+                        <p>Slot Name: {{yaml.slot}}</p>
+                        <p>Description:<br>
+                            {{yaml.description}}
+                        </p>
+                        <p>Settings:<br>
+                            {{yaml.game_options}}
+                        </p>
+                        <input type="checkbox"
+                            name="yaml_ids"
+                            value="{{ yaml.id }}"
+                            id="yaml{{ forloop.counter }}"
+                        >
+                        <label for="yaml{{ forloop.counter }}">
+                            Add this game
+                        </label>
+                    </div>
                 </fieldset>
             {% endfor %}
             {% if messages %}
@@ -31,7 +39,11 @@
                     <div class="alert alert-{{messages.tags}}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
-            <input type="submit" value="Join Lobby">
+            {% if yaml_list.count == 0 %}
+                <p>There are no yamls tied to your account</p>
+            {% else %}
+                <input type="submit" value="Join Lobby">
+            {% endif %}
         </form>
     </body>
 </html>

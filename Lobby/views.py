@@ -129,6 +129,7 @@ def join_lobby_view(request, lobby_id):
     yaml_list = user_yamls.objects.filter(
         user_id=request.user
     )
+    print(yaml_list)
 
     return HttpResponse(
         render(
