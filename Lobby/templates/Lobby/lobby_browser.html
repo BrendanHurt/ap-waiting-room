@@ -22,7 +22,7 @@
                         Join
                     </a>
                 {% else %}
-                    <a href="{% url 'users:login' %}?next={{ request.path }}">
+                    <a href="{% url 'users:login' %}?next={% url 'Lobby:start_lobby_join' lobby.id %}">
                         Login and join
                     </a>
                 {% endif %}
