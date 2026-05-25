@@ -7,7 +7,7 @@
     </head>
     <body>
         {% include 'home/nav.html' %}
-        {% include 'Lobby/lobby_info.html' %}
+        {% include 'Lobby/lobby_info_comp.html' %}
         {% for conn in conns %}
             <fieldset>
                 <p>Game: {{ conn.player_yaml.game_name }}</p>

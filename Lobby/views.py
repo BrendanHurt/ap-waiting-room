@@ -60,7 +60,7 @@ def lobby_form(request, lobby_id=None):
 
     return render(
         request,
-        "Lobby/lobby_form.html",
+        "Lobby/manage_lobby_form.html",
         context,
     )
 
@@ -117,7 +117,7 @@ def view_lobby(request, lobby_id):
     return HttpResponse(
         render(
             request, 
-            "Lobby/lobby_connections_info.html",
+            "Lobby/view_lobby.html",
             {"lobby": lobby, "conns": conns,}
         )
     )

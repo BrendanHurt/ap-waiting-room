@@ -34,11 +34,13 @@
                     </div>
                 </fieldset>
             {% endfor %}
+
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert alert-{{messages.tags}}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
+            
             {% if yaml_list.count == 0 %}
                 <p>There are no yamls tied to your account</p>
             {% else %}

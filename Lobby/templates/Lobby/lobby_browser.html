@@ -6,7 +6,7 @@
     </head>
     <body>
         {% include "home/nav.html" %}
-        {% include "Lobby/filters.html" %}
+        {% include "Lobby/filter_comp.html" %}
         
         <h1>Lobbies</h1>
         <a href="{% url 'Lobby:lobby_form' %}">
@@ -14,9 +14,9 @@
         </a>
         {% for lobby in lobbies %}
             <div class="lobby-card">
-                {% include "Lobby/lobby_info.html" %}
+                {% include "Lobby/lobby_info_comp.html" %}
                 {% if user.is_authenticated %}
-                    {% include "Lobby/lobby_actions.html" %}
+                    {% include "Lobby/lobby_action_comp.html" %}
                     <br>
                     <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
                         Join
