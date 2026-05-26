@@ -8,6 +8,9 @@
     <body>
         {% include 'home/nav.html' %}
         {% include 'Lobby/lobby_info_comp.html' %}
+        <a href="{% url 'Lobby:add_slot_form' lobby.id %}">
+            Add a slot
+        </a>
         {% for slot in slots %}
             <fieldset>
                 <p>Game: {{ slot.slot_id.game_name }}</p>

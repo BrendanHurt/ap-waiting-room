@@ -8,7 +8,14 @@
 
     {% if "view_lobby" in lobby_perms %}
         <br>
-        <a href="{% url 'Lobby:view_lobby' lobby.id %}">View Lobby</a>
+        <a href="{% url 'Lobby:view_lobby' lobby.id %}">
+            View Lobby
+        </a>
+    {% else %}
+        <br>
+        <a href="{% url 'Lobby:join_lobby' lobby.id %}">
+            Join Lobby
+        </a>
     {% endif %}
 
     {% if "delete_lobby" in lobby_perms %}
@@ -20,6 +27,10 @@
 
     {% if "change_lobby" in lobby_perms %}
         <br>
-        <a href="{% url 'Lobby:lobby_form' lobby.id %}">Edit Lobby</a>
+        <a href="{% url 'Lobby:lobby_form' lobby.id %}">
+            Edit Lobby
+        </a>
     {% endif %}
+
+
 </body>

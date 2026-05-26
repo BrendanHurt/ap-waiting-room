@@ -17,12 +17,8 @@
                 {% include "Lobby/lobby_info_comp.html" %}
                 {% if user.is_authenticated %}
                     {% include "Lobby/lobby_action_comp.html" %}
-                    <br>
-                    <a href="{% url 'Lobby:add_slot_form' lobby.id %}">
-                        Join
-                    </a>
                 {% else %}
-                    <a href="{% url 'users:login' %}?next={% url 'Lobby:add_slot_form' lobby.id %}">
+                    <a href="{% url 'users:login' %}?next={% url 'Lobby:join_lobby' lobby.id %}">
                         Login and join
                     </a>
                 {% endif %}

@@ -122,6 +122,13 @@ def view_lobby(request, lobby_id):
         )
     )
 
+def join_lobby_view(request, lobby_id):
+    lobby = get_object_or_404(Lobby, pk=lobby_id)
+    assign_perm("view_lobby", request.user, lobby)
+    return HttpResponseRedirect(
+        reverse("Lobby:view_lobby", args=(lobby_id,))
+    )
+
 #----------------------------------------------
 # Lobby Connection Views
 @login_required(redirect_field_name="next")
@@ -186,6 +193,5 @@ def grant_view_lobby_permissions(sender, instance, created, **kwargs):
     # -User has access to deleting the connection
     # -Removing the last connection doesn't revoke lobby view permissions,
     #  only the host can "kick" a player
-    assign_perm("view_lobby", instance.slot_id.user_id, instance.lobby_id)
     assign_perm("change_slot", instance.slot_id.user_id, instance)
     assign_perm("delete_slot", instance.slot_id.user_id, instance)
