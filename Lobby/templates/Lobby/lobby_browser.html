@@ -18,11 +18,11 @@
                 {% if user.is_authenticated %}
                     {% include "Lobby/lobby_action_comp.html" %}
                     <br>
-                    <a href="{% url 'Lobby:start_lobby_join' lobby.id %}">
+                    <a href="{% url 'Lobby:add_slot_form' lobby.id %}">
                         Join
                     </a>
                 {% else %}
-                    <a href="{% url 'users:login' %}?next={% url 'Lobby:start_lobby_join' lobby.id %}">
+                    <a href="{% url 'users:login' %}?next={% url 'Lobby:add_slot_form' lobby.id %}">
                         Login and join
                     </a>
                 {% endif %}

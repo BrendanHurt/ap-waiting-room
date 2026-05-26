@@ -6,7 +6,7 @@
     </head>
     <body>
         <h1>Select the YAMLs for the game(s) you want to use in this lobby</h1>
-        <form action="{% url 'Lobby:join_lobby' lobby_id %}" method="post">
+        <form action="{% url 'Lobby:add_slot' lobby_id %}" method="post">
             {% csrf_token %}
             <a href="{% url 'user_yamls:view_yamls' request.user.id %}">
                 Manage Yamls
@@ -16,7 +16,7 @@
                 <fieldset>
                     <div>
                         <p>Game Name: {{yaml.game_name}}</p>
-                        <p>Slot Name: {{yaml.slot}}</p>
+                        <p>Slot Name: {{yaml.slot_name}}</p>
                         <p>Description:<br>
                             {{yaml.description}}
                         </p>

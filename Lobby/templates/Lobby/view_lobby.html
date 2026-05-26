@@ -8,22 +8,22 @@
     <body>
         {% include 'home/nav.html' %}
         {% include 'Lobby/lobby_info_comp.html' %}
-        {% for conn in conns %}
+        {% for slot in slots %}
             <fieldset>
-                <p>Game: {{ conn.player_yaml.game_name }}</p>
+                <p>Game: {{ slot.slot_id.game_name }}</p>
                 <p>Description:</p>
-                <p>{{ conn.player_yaml.description }}</p>
+                <p>{{ slot.slot_id.description }}</p>
                 <p>Randomizer Settings:</p>
-                <p>{{ conn.player_yaml.game_options }}</p>
+                <p>{{ slot.slot_id.game_options }}</p>
             </fieldset>
-            {% get_obj_perms request.user for conn as "conn_perms" %}
-            {% if "delete_lobbyconnection" in conn_perms %}
-                <a href="{% url 'Lobby:delete_connection' conn.id %}">
+            {% get_obj_perms request.user for slot as "slot_perms" %}
+            {% if "delete_slot" in slot_perms %}
+                <a href="{% url 'Lobby:delete_slot' slot.id %}">
                     Remove Game
                 </a>
             {% endif %}
-            {% if "change_lobbyconnection" in conn_perms %}
-                <a href="{% url 'Lobby:edit_connection' conn.id %}">
+            {% if "change_slot" in slot_perms %}
+                <a href="{% url 'Lobby:edit_slot' slot.id %}">
                     Edit Game Settings
                 </a>
             {% endif %}

@@ -5,30 +5,24 @@ from django.urls import reverse
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import user_yamls
+from .models import Yaml
 
-# Create your views here.
 @login_required
 def view_yamls(request, user_id):
-#    user = get_object_or_404(User, pk=user_id)
     return render(request,
         'user_yamls/view_yamls.html',
-        #{ "user": user }
     )
-    #return HttpResponse('This is the index page for yamls')
 
 @login_required
 def yaml_form(request, yaml_id=None):
-    yaml_slot = "Slot Name"
-
-    slot = user_yamls._meta.get_field("slot").get_default()
-    game_name = user_yamls._meta.get_field("game_name").get_default()
+    slot_name = Yaml._meta.get_field("slot_name").get_default()
+    game_name = Yaml._meta.get_field("game_name").get_default()
     description = ""
     game_options = ""
 
     if (yaml_id is not None):
-        yaml = get_object_or_404(user_yamls, pk=yaml_id)
-        slot = yaml.slot
+        yaml = get_object_or_404(Yaml, pk=yaml_id)
+        slot_name = yaml.slot_name
         game_name = yaml.game_name
         description = yaml.description
         game_options = yaml.game_options
@@ -38,7 +32,7 @@ def yaml_form(request, yaml_id=None):
         'user_yamls/yaml_form.html',
         {
             "yaml_id": yaml_id,
-            "yaml_slot": slot,
+            "slot_name": slot_name,
             "yaml_game_name": game_name,
             "yaml_description": description,
             "yaml_game_options": game_options
@@ -46,24 +40,14 @@ def yaml_form(request, yaml_id=None):
     )
 
 def submit_yaml(request, yaml_id=None):
-    #get the user_id
-    #get the slot name
-    #get the game name
-    #get the description, emtpy string if none
-    #get the options
-    #user = get_object_or_404(
-    #    User,
-    #    pk=request.session.get("user_id")
-    #)
-
     yaml = None
     if (yaml_id is not None):
-        yaml = get_object_or_404(user_yamls, pk=yaml_id)
+        yaml = get_object_or_404(Yaml, pk=yaml_id)
     else:
-        yaml = user_yamls()
+        yaml = Yaml()
         yaml.user_id = request.user
     
-    yaml.slot = request.POST["slot"]
+    yaml.slot_name = request.POST["slot_name"]
     yaml.game_name = request.POST["game_name"]
     yaml.description = request.POST["description"]
     yaml.game_options = request.POST["game_options"]
@@ -78,7 +62,7 @@ def submit_yaml(request, yaml_id=None):
 
 @login_required
 def delete_yaml(request, yaml_id):
-    yaml = user_yamls.objects.get(pk = yaml_id)
+    yaml = Yaml.objects.get(pk = yaml_id)
     yaml.delete()
     return HttpResponseRedirect(
         reverse(

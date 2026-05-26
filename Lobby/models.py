@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.timezone import now
 
 from django.contrib.auth.models import User
-from user_yamls.models import user_yamls
+from user_yamls.models import Yaml
 
 # Create your models here.
 class Lobby(models.Model):
@@ -13,6 +13,6 @@ class Lobby(models.Model):
     description = models.CharField(default="")
 
 
-class LobbyConnection(models.Model):
+class Slot(models.Model):
     lobby_id = models.ForeignKey(Lobby, on_delete=models.CASCADE)
-    player_yaml = models.ForeignKey(user_yamls, on_delete=models.CASCADE)
+    slot_id = models.ForeignKey(Yaml, on_delete=models.CASCADE)

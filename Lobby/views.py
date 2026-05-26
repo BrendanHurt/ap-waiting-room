@@ -8,10 +8,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from guardian.shortcuts import assign_perm
 
-from .models import Lobby, LobbyConnection
+from .models import Lobby, Slot
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from user_yamls.models import user_yamls
+from user_yamls.models import Yaml
 
 #----------------------------------------------
 # Lobby Views
@@ -109,7 +109,7 @@ def delete_lobby(request, lobby_id):
 
 def view_lobby(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
-    conns = LobbyConnection.objects.filter(
+    slots = Slot.objects.filter(
         lobby_id_id=lobby_id
     )
     #ZZZ Figuring out how to display permitted actions for connection
@@ -118,45 +118,42 @@ def view_lobby(request, lobby_id):
         render(
             request, 
             "Lobby/view_lobby.html",
-            {"lobby": lobby, "conns": conns,}
+            {"lobby": lobby, "slots": slots,}
         )
     )
 
 #----------------------------------------------
 # Lobby Connection Views
 @login_required(redirect_field_name="next")
-def join_lobby_view(request, lobby_id):
-    yaml_list = user_yamls.objects.filter(
+def add_slot_form_view(request, lobby_id):
+    yaml_list = Yaml.objects.filter(
         user_id=request.user
     )
 
     return HttpResponse(
         render(
             request,
-            "Lobby/join_lobby_form.html",
+            "Lobby/add_slot_form.html",
             {"yaml_list": yaml_list, "lobby_id": lobby_id}
         ),
     )
 
-@login_required
-def validate_join_lobby(request, lobby_id):
+def add_slot_view(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     yaml_ids = request.POST.get("yaml_ids")
+    
     if yaml_ids is None:
         messages.error(request, "You must select at least one YAML to join a lobby")
         return HttpResponseRedirect(
-            reverse("Lobby:start_lobby_join", args=(lobby.id,))
+            reverse("Lobby:add_slot_form", args=(lobby.id,))
         )
     
     for yaml_id in yaml_ids:
-        yaml = get_object_or_404(user_yamls, pk=yaml_id)
-        try:
-            l = LobbyConnection.objects.create(
-                lobby_id=lobby,
-                player_yaml=yaml
-            )
-        except DatabaseError:
-            messages.error(request, "Failed to send yaml %s" %yaml_id)
+        yaml = get_object_or_404(Yaml, pk=yaml_id)
+        l = Slot.objects.create(
+            lobby_id=lobby,
+            slot_id=yaml
+        )
 
 
     return HttpResponseRedirect(
@@ -166,10 +163,10 @@ def validate_join_lobby(request, lobby_id):
         )
     )
 
-def delete_connection(request, slot_id):
-    lobby_conn = get_object_or_404(LobbyConnection, pk=slot_id)
-    lobby = lobby_conn.lobby_id
-    lobby_conn.delete()
+def delete_slot_view(request, slot_id):
+    slot = get_object_or_404(Slot, pk=slot_id)
+    lobby = slot.lobby_id
+    slot.delete()
     return HttpResponseRedirect(
         reverse(
             "Lobby:view_lobby",
@@ -177,10 +174,10 @@ def delete_connection(request, slot_id):
         )
     )
 
-def edit_connection(request, slot_id):
+def edit_slot_view(request, slot_id):
     return HttpResponse("Temp Stub")
 
-@receiver(post_save, sender=LobbyConnection)
+@receiver(post_save, sender=Slot)
 def grant_view_lobby_permissions(sender, instance, created, **kwargs):
     #ZZZ
     #Add view lobby perm, if it doesn't already exist & a lobby connection is made
@@ -189,6 +186,6 @@ def grant_view_lobby_permissions(sender, instance, created, **kwargs):
     # -User has access to deleting the connection
     # -Removing the last connection doesn't revoke lobby view permissions,
     #  only the host can "kick" a player
-    assign_perm("view_lobby", instance.player_yaml.user_id, instance.lobby_id)
-    assign_perm("change_lobbyconnection", instance.player_yaml.user_id, instance)
-    assign_perm("delete_lobbyconnection", instance.player_yaml.user_id, instance)
+    assign_perm("view_lobby", instance.slot_id.user_id, instance.lobby_id)
+    assign_perm("change_slot", instance.slot_id.user_id, instance)
+    assign_perm("delete_slot", instance.slot_id.user_id, instance)

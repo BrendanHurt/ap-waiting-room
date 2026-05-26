@@ -6,10 +6,10 @@
 <body>
     {% include "home/nav.html" %}
     <h1>YAMLs</h1>
-    {% for yaml in request.user.user_yamls_set.all %}
+    {% for yaml in request.user.yaml_set.all %}
         <fieldset>
             <p>Game:<br>{{ yaml.game_name }}</p>
-            <p>Slot Name:<br>{{ yaml.slot }}</p>
+            <p>Slot Name:<br>{{ yaml.slot_name }}</p>
             <p>Description:<br>{{ yaml.description }}</p>
             <button>Download</button>
             <br><br>
