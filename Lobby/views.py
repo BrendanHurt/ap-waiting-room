@@ -154,7 +154,7 @@ def add_slot_view(request, lobby_id):
         return HttpResponseRedirect(
             reverse("Lobby:add_slot_form", args=(lobby.id,))
         )
-        
+
     for yaml_id in yaml_ids:
         yaml = get_object_or_404(Yaml, pk=yaml_id)
 
@@ -183,7 +183,9 @@ def delete_slot_view(request, slot_id):
     )
 
 def edit_slot_view(request, slot_id):
-    return HttpResponse("Temp Stub")
+    return HttpResponseRedirect(
+        reverse("user_yamls:yaml_form", args=(slot_id,))
+    )
 
 @receiver(post_save, sender=Slot)
 def grant_view_lobby_permissions(sender, instance, created, **kwargs):

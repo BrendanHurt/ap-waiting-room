@@ -45,7 +45,8 @@ def submit_yaml(request, yaml_id=None):
         yaml = get_object_or_404(Yaml, pk=yaml_id)
     else:
         yaml = Yaml()
-        yaml.user_id = request.user
+    yaml.user_id = request.user
+    print(yaml_id)
     
     yaml.slot_name = request.POST["slot_name"]
     yaml.game_name = request.POST["game_name"]

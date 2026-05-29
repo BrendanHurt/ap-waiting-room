@@ -26,7 +26,7 @@
                 </a>
             {% endif %}
             {% if "change_slot" in slot_perms %}
-                <a href="{% url 'Lobby:edit_slot' slot.id %}">
+                <a href="{% url 'Lobby:edit_slot' slot.slot_id.id %}">
                     Edit Game Settings
                 </a>
             {% endif %}

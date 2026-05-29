@@ -6,11 +6,7 @@
     </head>
     <body>
         {% include "home/nav.html" %}
-        {% if yaml_id is not None %}
-            <form action="{% url 'user_yamls:submit_yaml' yaml_id %}" method="post">
-        {% else %}
-            <form action="{% url 'user_yamls:submit_yaml' %}" method="post">
-        {% endif %}
+        <form action="{% url 'user_yamls:submit_yaml' %}" method="post">
             {% csrf_token %}
             <fieldset>
                 <label for="slot_name">Slot Name</label>
@@ -28,7 +24,13 @@
                 <label for="game_options">Randomizer Options</label>
                 <input type="text" name="game_options" id="game_options" value="{{ yaml_game_options }}" required>
             </fieldset>
-            <input type="submit" value="Save Game Options">
+            {% if yaml_id is not None %}
+                <input type="submit" name="submit_type" value="Save changes" formaction="{% url 'user_yamls:submit_yaml' yaml_id%}">
+                <input type="submit" name="submit_type" value="Save as new YAML" formaction="{% url 'user_yamls:submit_yaml' %}">
+            {% else %}
+                <input type="submit" name="submit_type" value="Save" formaction="{% url 'user_yamls:submit_yaml' %}">
+            {% endif %}
+
         </form>
     </body>
 </html>
