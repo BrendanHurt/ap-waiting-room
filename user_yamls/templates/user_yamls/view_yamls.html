@@ -5,7 +5,13 @@
 </head>
 <body>
     {% include "home/nav.html" %}
+    
     <h1>YAMLs</h1>
+    <div class="sticky">
+        <a href="{% url 'user_yamls:yaml_form' %}" class="yaml-mgmt">
+            Add a YAML
+        </a>
+    </div>
     {% for yaml in request.user.yaml_set.all %}
         <fieldset>
             <p>Game:<br>{{ yaml.game_name }}</p>
@@ -22,5 +28,13 @@
             </a>
         </fieldset>
     {% endfor %}
-    <a href="{% url 'user_yamls:yaml_form' %}">Add a YAML</a>
 </body>
+
+<style>
+    div.sticky {
+        position: sticky;
+        top: 0;
+        border: 1px solid black;
+        background-color: white;
+    }
+</style>
