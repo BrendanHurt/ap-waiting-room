@@ -3,5 +3,37 @@
     <meta charset="utf-8">
 </head>
 <body>
-    <p>Temporary stub to make things work</p>
+    <form action="{% url 'Lobby:lobby_browser' %}" method="post">
+        {% csrf_token %}
+        <label for="is_host">Lobbies I'm Hosting</label>
+
+        <input type="checkbox" 
+            name="is_host" 
+            id="is_host"
+            {% if is_host is True %}
+                checked
+            {% endif %}
+        >
+
+        <label for="has_joined_filter">Lobbies I've Joined</label>
+        <input type="checkbox"
+            name="has_joined"
+            id="has_joined"
+            {% if has_joined is True %}
+                checked
+            {% endif %}
+        >
+
+        <label for="is_async">Async lobbies</label>
+        <input type="checkbox"
+            name="is_async"
+            id="is_async"
+            {% if is_async is True %}
+                checked
+            {% endif %}
+        >
+
+        <input type="submit" value="Apply Filters">
+    </form>
+
 </body>

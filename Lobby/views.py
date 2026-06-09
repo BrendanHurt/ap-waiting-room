@@ -6,7 +6,7 @@ from django.db import DatabaseError
 from django.contrib import messages
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from .models import Lobby, Slot
 from django.contrib.auth.models import User
@@ -19,19 +19,28 @@ from user_yamls.models import Yaml
 # Create your views here.
 def lobby_browser(request):
     #add lobby filtering later
-    filters = None
+    lobbies = Lobby.objects.all()
+    context = {}
     if (request.method == "POST"):
         #ZZZ adding filters
-        filters = "temp to get python off my back"
-    lobbies = Lobby.objects.all()
+        if (request.POST.get("is_host") is not None):
+            lobbies = lobbies.filter(host_id=request.user)
+            context.update({"is_host": True})
+        if (request.POST.get("has_joined") is not None):
+            lobbies = get_objects_for_user(request.user, 'Lobby.view_lobby')
+            context.update({"has_joined": True})
+        if (request.POST.get("is_async") is not None):
+            lobbies = lobbies.filter(is_async=True)
+            context.update({"is_async": True})
+
+    context.update({"lobbies": lobbies})
 
     return render(
         request,
         "Lobby/lobby_browser.html",
-        {
-            "lobbies": lobbies,
-        },
+        context,
     )
+
 
 #Handles both creation & updating of lobbies
 #Gets the default values for the model. Then, if there is a lobby_id passed in,
