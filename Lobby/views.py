@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from guardian.shortcuts import assign_perm, get_objects_for_user
+from django.template import RequestContext, loader
 
 from .models import Lobby, Slot
 from django.contrib.auth.models import User
@@ -18,29 +19,46 @@ from user_yamls.models import Yaml
 
 # Create your views here.
 def lobby_browser(request):
-    #add lobby filtering later
+    context = apply_lobby_browser_filters(request)
+    return render(request, "Lobby/lobby_browser.html", context)
+
+def apply_lobby_browser_filters(request):
+    print("In lobby filters view")
     lobbies = Lobby.objects.all()
     context = {}
+
     if (request.method == "POST"):
-        #ZZZ adding filters
-        if (request.POST.get("is_host") is not None):
+        print("Checking for filters")
+        #==============================================
+        #Is Host filter
+        if (request.POST.get("is_host") is not None
+            and request.user.is_authenticated):
             lobbies = lobbies.filter(host_id=request.user)
-            context.update({"is_host": True})
-        if (request.POST.get("has_joined") is not None):
+            context["is_host"] = True
+
+        elif (request.POST.get("is_host") is not None
+            and not request.user.is_authenticated):
+            messages.warning(request, "No user is logged in, the 'Host' filter cannot be applied")
+
+        #==============================================
+        #Has Joined filter
+        if (request.POST.get("has_joined") is not None
+            and request.user.is_authenticated):
             lobbies = get_objects_for_user(request.user, 'Lobby.view_lobby')
-            context.update({"has_joined": True})
+            context["has_joined"] = True
+
+        elif (request.POST.get("is_host") is not None
+            and not request.user.is_authenticated):
+            messages.warning(request, "No user is logged in, the 'Joined' filter cannot be applied")
+
+        #==============================================
+        #Is Async filter
         if (request.POST.get("is_async") is not None):
             lobbies = lobbies.filter(is_async=True)
-            context.update({"is_async": True})
+            context["is_async"] = True
 
-    context.update({"lobbies": lobbies})
-
-    return render(
-        request,
-        "Lobby/lobby_browser.html",
-        context,
-    )
-
+    context["lobbies"] = lobbies
+    return context
 
 #Handles both creation & updating of lobbies
 #Gets the default values for the model. Then, if there is a lobby_id passed in,
@@ -131,6 +149,7 @@ def view_lobby(request, lobby_id):
         )
     )
 
+@login_required()
 def join_lobby_view(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     assign_perm("view_lobby", request.user, lobby)

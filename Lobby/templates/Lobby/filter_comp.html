@@ -5,25 +5,29 @@
 <body>
     <form action="{% url 'Lobby:lobby_browser' %}" method="post">
         {% csrf_token %}
-        <label for="is_host">Lobbies I'm Hosting</label>
+        {% if request.user.is_authenticated %}
+            <label for="is_host">Lobbies I'm Hosting</label>
+            <input type="checkbox" 
+                name="is_host" 
+                id="is_host"
+                {% if is_host is True %}
+                    checked
+                {% endif %}
+            >
+        {% endif %}
 
-        <input type="checkbox" 
-            name="is_host" 
-            id="is_host"
-            {% if is_host is True %}
-                checked
-            {% endif %}
-        >
+        {% if request.user.is_authenticated %}
+            <label for="has_joined_filter">Lobbies I've Joined</label>
+            <input type="checkbox"
+                name="has_joined"
+                id="has_joined"
+                {% if has_joined is True %}
+                    checked
+                {% endif %}
+            >
+        {% endif %}
 
-        <label for="has_joined_filter">Lobbies I've Joined</label>
-        <input type="checkbox"
-            name="has_joined"
-            id="has_joined"
-            {% if has_joined is True %}
-                checked
-            {% endif %}
-        >
-
+        
         <label for="is_async">Async lobbies</label>
         <input type="checkbox"
             name="is_async"
@@ -35,5 +39,7 @@
 
         <input type="submit" value="Apply Filters">
     </form>
-
+    {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">{{ message }}</div>
+    {% endfor %}
 </body>
