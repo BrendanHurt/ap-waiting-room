@@ -23,12 +23,10 @@ def lobby_browser(request):
     return render(request, "Lobby/lobby_browser.html", context)
 
 def apply_lobby_browser_filters(request):
-    print("In lobby filters view")
     lobbies = Lobby.objects.all()
     context = {}
 
     if (request.method == "POST"):
-        print("Checking for filters")
         #==============================================
         #Is Host filter
         if (request.POST.get("is_host") is not None
