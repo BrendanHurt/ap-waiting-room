@@ -36,12 +36,21 @@ class LobbyBrowserTests(TestCase):
         self.other = make_user("other_user")
         self.lobby_sync = make_lobby(self.host, name="Sync Lobby", is_async=False)
         self.lobby_async = make_lobby(self.host, name="Async Lobby", is_async=True)
+        self.lobby_sync_join_url = reverse("Lobby:join_lobby", args=(self.lobby_sync.id,))
         self.url = reverse("Lobby:lobby_browser")
 
     def test_get_returns_200(self):
         """Lobby browser should always return 200, auth-ed user or not"""
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
+
+    def test_get_join_redirects_unauthenticated(self):
+        response = self.client.get(self.lobby_sync_join_url)
+        self.assertRedirects(
+            response,
+            f"{reverse('users:login')}?next={self.lobby_sync_join_url}",
+            fetch_redirect_response=False
+        )
 
     def test_get_all_lobbies_present_in_context(self):
         """All lobbies should be listed when no filters are applied"""
@@ -77,7 +86,6 @@ class LobbyBrowserTests(TestCase):
         self.client.login(username="host_user", password="test123")
         response = self.client.post(self.url, {"is_host": "on"})
         self.assertTrue(response.context.get("is_host"))
-
 
     def test_post_filter_has_joined(self):
         self.client.login(username="host_user", password="test123")
@@ -121,3 +129,100 @@ class LobbyBrowserTests(TestCase):
         self.assertIn(self.lobby_sync, lobbies)
         self.assertIn(other_lobby, lobbies)
         
+    def test_post_filter_is_async_with_unauthenticated(self):
+        response = self.client.post(self.url, {"is_async": "on"})
+        lobbies = list(response.context["lobbies"])
+
+        self.assertIn(self.lobby_async, lobbies)
+        self.assertNotIn(self.lobby_sync, lobbies)
+
+    def test_post_all_filters_with_unauthenticated_returns_200(self):
+        response = self.client.post(
+            self.url, 
+            {"is_host": "on", "has_joined": "on", "is_async": "on"}
+        )
+        self.assertEqual(response.status_code, 200)
+
+class LobbyFormTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.id = id
+        self.host = make_user(username="host_user", password="test123")
+        self.other = make_user(username="other_user", password="test123")
+        self.url = reverse("Lobby:lobby_form")
+        self.lobby = make_lobby(self.host, name="Existing Lobby")
+        self.submit_url = reverse("Lobby:submit_lobby")
+
+    def test_post_uses_correct_template(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self.url, {})
+        self.assertTemplateUsed(response, "Lobby/manage_lobby_form.html")
+
+    def test_get_create_form_redirects_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertRedirects(
+            response,
+            f"{reverse('users:login')}?next={self.url}",
+            fetch_redirect_response=False,
+        )
+        
+    #=================================================
+    # Creating a new lobby
+    def test_create_form_renders_for_authenticated_user(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "Lobby/manage_lobby_form.html")
+
+    def test_create_form_context_has_no_lobby_id(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self.url)
+        self.assertIsNone(response.context.get("lobby_id"))
+
+    def test_create_form_context_contains_defaults(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self.url)
+        self.assertEqual(
+            response.context.get("lobby_name"), 
+            Lobby._meta.get_field("name").get_default()
+        )
+        #Can't be checked for equality, so just see if it's there
+        self.assertIn("lobby_start_date", response.context)
+        self.assertEqual(
+            response.context.get("lobby_description"), 
+            Lobby._meta.get_field("description").get_default()
+        )
+        self.assertEqual(
+            response.context.get("lobby_async"), 
+            Lobby._meta.get_field("is_async").get_default()
+        )
+
+    #=================================================
+    # Editing an existing lobby
+    def test_edit_form_renders_with_lobby_data(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(
+            reverse("Lobby:lobby_form", kwargs={"lobby_id": self.lobby.id})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            self.lobby.name,
+            response.context.get("lobby_name")
+        )
+        self.assertIn("lobby_start_date", response.context)
+        self.assertEqual(
+            self.lobby.description,
+            response.context.get("lobby_description")
+        )
+        self.assertEqual(
+            self.lobby.is_async,
+            response.context.get("lobby_async")
+        )
+
+    def test_edit_form_returns_404_for_nonexistent_lobby(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(reverse(
+            "Lobby:lobby_form",
+            kwargs={"lobby_id": 999999}
+        ))
+        self.assertEqual(response.status_code, 404)
