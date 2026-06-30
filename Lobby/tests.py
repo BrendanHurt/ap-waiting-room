@@ -152,6 +152,12 @@ class LobbyFormTests(TestCase):
         self.url = reverse("Lobby:lobby_form")
         self.lobby = make_lobby(self.host, name="Existing Lobby")
         self.submit_url = reverse("Lobby:submit_lobby")
+    
+    def _lobby_form_for(self, lobby_id):
+        return reverse(
+            "Lobby:lobby_form", 
+            kwargs = {"lobby_id": lobby_id},
+        )
 
     def test_post_uses_correct_template(self):
         self.client.login(username="host_user", password="test123")
@@ -201,9 +207,7 @@ class LobbyFormTests(TestCase):
     # Editing an existing lobby
     def test_edit_form_renders_with_lobby_data(self):
         self.client.login(username="host_user", password="test123")
-        response = self.client.get(
-            reverse("Lobby:lobby_form", kwargs={"lobby_id": self.lobby.id})
-        )
+        response = self.client.get(self._lobby_form_for(self.lobby.id))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             self.lobby.name,
@@ -226,3 +230,12 @@ class LobbyFormTests(TestCase):
             kwargs={"lobby_id": 999999}
         ))
         self.assertEqual(response.status_code, 404)
+
+    def test_edit_form_redirects_unauthenticated(self):
+        form_url = self._lobby_form_for(self.lobby.id)
+        response = self.client.get(form_url)
+        self.assertRedirects(
+            response,
+            f"{reverse("users:login")}?next={form_url}",
+            fetch_redirect_response=False
+        )
