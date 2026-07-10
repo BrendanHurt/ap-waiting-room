@@ -4,6 +4,7 @@ from django.urls import reverse
 from user_yamls.models import Yaml
 from .models import Lobby, Slot
 from django.contrib.auth.models import User
+from guardian.core import ObjectPermissionChecker
 
 def make_user(username: str, password: str = "test123") -> User:
     return User.objects.create_user(username=username, password=password)
@@ -239,3 +240,87 @@ class LobbyFormTests(TestCase):
             f"{reverse("users:login")}?next={form_url}",
             fetch_redirect_response=False
         )
+
+class SubmitLobbyViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host_user = make_user(username="host_user", password="test123")
+        self.url = reverse("Lobby:submit_lobby")
+        self.valid_payload = {
+            "name": "Test Lobby",
+            "start_date": "2026-7-1",
+            "description": "Description for test lobby",
+            "is_async": False
+        }
+
+    #=================================================
+    # Creating a new lobby
+    def test_create_redirects_to_browser(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self.url, self.valid_payload)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response,
+            f"{reverse('Lobby:lobby_browser')}",
+            fetch_redirect_response = False
+        )
+
+    def test_create_lobby_persists_to_database(self):
+        self.client.login(username="host_user", password="test123")
+        count_before = Lobby.objects.count()
+        response = self.client.post(self.url, self.valid_payload)
+        self.assertEqual(count_before + 1, Lobby.objects.count())
+
+    def test_create_lobby_sets_host_to_requesting_user(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self.url, self.valid_payload)
+        lobby = Lobby.objects.get(name="Test Lobby")
+        self.assertEqual(self.host_user, lobby.host_id)
+
+    def test_create_lobby_assigns_host_permissions(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self.url, self.valid_payload)
+        checker = ObjectPermissionChecker(self.host_user)
+        lobby = Lobby.objects.get(name="Test Lobby")
+        self.assertEqual(
+            checker.has_perm("change_lobby", lobby),
+            True
+        )
+        self.assertEqual(
+            checker.has_perm("delete_lobby", lobby),
+            True
+        )
+        self.assertEqual(
+            checker.has_perm("view_lobby", lobby),
+            True
+        )
+
+    def test_create_lobby_is_async_false_when_omitted(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(
+            self.url,
+            {
+                "name": "None Async Test",
+                "start_date": "2026-7-1",
+                "description": "Won't have async"
+            }
+        )
+        lobby = Lobby.objects.get(name="None Async Test")
+        self.assertEqual(lobby.is_async, False)
+
+    def test_create_lobby_is_async_true_when_provided(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(
+            self.url, 
+            {
+                "name": "Async Test",
+                "start_date": "2026-7-1",
+                "description": "Description for test async lobby",
+                "is_async": True,
+            }
+        )
+        lobby = Lobby.objects.get(name="Async Test")
+        self.assertEqual(lobby.is_async, True)
+
+
+    
