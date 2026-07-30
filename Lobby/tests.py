@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+import datetime
 
 from user_yamls.models import Yaml
 from .models import Lobby, Slot
@@ -250,8 +251,12 @@ class SubmitLobbyViewTests(TestCase):
             "name": "Test Lobby",
             "start_date": "2026-7-1",
             "description": "Description for test lobby",
-            "is_async": False
+            "is_async": False,
+            "next": reverse("Lobby:lobby_form")
         }
+    
+    def _update_url(self, lobby_id):
+        return reverse("Lobby:submit_lobby", kwargs={"lobby_id": lobby_id})
 
     #=================================================
     # Creating a new lobby
@@ -322,5 +327,97 @@ class SubmitLobbyViewTests(TestCase):
         lobby = Lobby.objects.get(name="Async Test")
         self.assertEqual(lobby.is_async, True)
 
+    def test_unauthenticated_create_redirects_to_login(self):
+        response = self.client.post(self.url, self.valid_payload)
 
+        self.assertRedirects(
+            response,
+            f"{reverse('users:login')}",
+            fetch_redirect_response = False
+        )
     
+    def test_unauthenticated_create_carries_over_context(self):
+        response = self.client.post(self.url, self.valid_payload)
+
+        self.assertEqual(response["next"], self.valid_payload["next"])
+    
+    #=================================================
+    # Creating a new lobby
+
+    def test_update_lobby_changes_name(self):
+        self.client.login(username="host_user", password="test123")
+        lobby = make_lobby(self.host_user, name="Old Name")
+
+        payload = {**self.valid_payload, "name": "New Name"}
+        self.client.post(self._update_url(lobby.id), payload)
+
+        lobby.refresh_from_db()
+
+        self.assertEqual(lobby.name, payload["name"])
+
+    def test_update_lobby_changes_description(self):
+        self.client.login(username="host_user", password="test123")
+        lobby = make_lobby(
+            self.host_user,
+            description=self.valid_payload["description"]
+        )
+        new_payload = {
+            **self.valid_payload,
+            "description": "Updated description"
+        }
+        self.client.post(self._update_url(lobby.id), new_payload)
+        lobby.refresh_from_db()
+        self.assertEqual(lobby.description, new_payload["description"])
+
+    def test_update_lobby_changes_async(self):
+        self.client.login(username="host_user", password="test123")
+        lobby = make_lobby(
+            self.host_user,
+            is_async=True
+        )
+        new_payload = {
+            **self.valid_payload,
+            "is_async": False
+        }
+        self.client.post(
+            self._update_url(lobby.id),
+            new_payload    
+        )
+        lobby.refresh_from_db()
+        self.assertEqual(lobby.is_async, new_payload["is_async"])
+
+    def test_update_lobby_changes_start_date(self):
+        self.client.login(username="host_user", password="test123")
+        lobby = make_lobby(
+            self.host_user, 
+            start_date=datetime.date.fromisoformat("2026-07-01")
+        )
+        new_payload = {
+            **self.valid_payload,
+            "start_date": datetime.date.fromisoformat("2026-07-02")
+        }
+        self.client.post(self._update_url(lobby.id), new_payload)
+        lobby.refresh_from_db()
+
+        self.assertEqual(
+            lobby.start_date,
+            new_payload["start_date"]
+        )
+
+    def test_update_lobby_returns_404_for_nonexistent_lobby(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self._update_url(9999), self.valid_payload)
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_lobby_does_not_change_host(self):
+        self.client.login(username="host_user", password="test123")
+        lobby = make_lobby(self.host_user, name="Old Name")
+
+        new_payload = {**self.valid_payload, "name": "New Name"}
+        self.client.post(self._update_url(lobby.id), new_payload)
+        lobby.refresh_from_db()
+
+        self.assertEqual(lobby.host_id, self.host_user)
+
+
+
