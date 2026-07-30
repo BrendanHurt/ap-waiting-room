@@ -18,11 +18,20 @@ def account(request):
         return HttpResponse('Error accessing account page')
 
 def login_view(request):
-    next_url = request.GET.get("next") or "/"
+    next_url = "/"
+    if (request.method == "GET"):
+        next_url = request.GET.get("next") or "/"
+    elif (request.method == "POST"):
+        next_url = request.POST.get("next") or "/"
+
+    context = {
+        "next": next_url
+    }
+        
     return render(
         request,
         "users/login.html",
-        {"next_url": next_url}
+        context
     )
 
 def validate_auth(request):
@@ -31,10 +40,10 @@ def validate_auth(request):
     username = request.POST["username"]
     password = request.POST["password"]
     user = authenticate(request, username=username, password=password)
-
+    
     if user is not None:
         login(request, user)
-        return HttpResponseRedirect(request.POST.get("next_url"))
+        return HttpResponseRedirect(request.POST.get("next"))
     else:
         messages.error(request, "Invalid login")
         return render(request, 'users/login.html')

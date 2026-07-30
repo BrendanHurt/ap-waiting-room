@@ -81,6 +81,7 @@ def lobby_form(request, lobby_id=None):
         "lobby_start_date": lobby_start_date,
         "lobby_description": lobby_description,
         "lobby_async": lobby_async,
+        "next": next
     }
 
     return render(
@@ -92,6 +93,12 @@ def lobby_form(request, lobby_id=None):
 # TODO: Add logging to form submissions, successful or not
 def submit_lobby(request, lobby_id=None):
 
+    if not request.user.is_authenticated:
+        loginRedirect = HttpResponseRedirect(reverse("users:login"))
+        for key,val in request.POST.items():
+            loginRedirect[key] = val
+        return loginRedirect
+
     lobby = None
     if (lobby_id is not None):
         lobby = get_object_or_404(Lobby, pk=lobby_id)
@@ -102,8 +109,11 @@ def submit_lobby(request, lobby_id=None):
     lobby.name = request.POST.get("name")
     lobby.start_date = request.POST.get("start_date")
     lobby.description = request.POST.get("description")
-    async_val = False
-    lobby.is_async = True if request.POST.get("is_async") else False
+    async_val = request.POST.get("is_async")
+    if (async_val is None):
+        lobby.is_async = False
+    else:
+        lobby.is_async = async_val
 
     lobby.save()
     return HttpResponseRedirect(
