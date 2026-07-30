@@ -132,7 +132,7 @@ def assign_host_perms(sender, instance, created, **kwargs):
 
 
 def delete_lobby(request, lobby_id):
-    lobby = Lobby.objects.get(pk=lobby_id)
+    lobby = get_object_or_404(Lobby, pk=lobby_id)
     lobby.delete()
     return HttpResponseRedirect(
         reverse(
