@@ -421,3 +421,49 @@ class SubmitLobbyViewTests(TestCase):
 
 
 
+class DeleteLobbyViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host_user = make_user(username="host_user", password="test123")
+        self.lobby = make_lobby(self.host_user)
+
+    def _url(self, lobby_id=None):
+        return reverse(
+            "Lobby:delete_lobby",
+            kwargs={"lobby_id": lobby_id or self.lobby.id}
+        )
+
+    def test_delete_removes_lobby(self):
+        self.client.login(username="host_user", password="test123")
+        self.client.get(self._url())
+        self.assertFalse(Lobby.objects.filter(pk=self.lobby.id).exists())
+
+    def test_delete_redirects_to_browser(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._url())
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("Lobby:lobby_browser"))
+
+    def test_delete_nonexistent_lobby_raises_404(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._url(9999))    
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_lobby_cascades_to_slots(self):
+        self.client.login(username="host_user", password="test123")
+        yaml = make_yaml(self.host_user)
+        Slot.objects.create(lobby_id=self.lobby, slot_id=yaml)
+        self.client.get(self._url())
+        remaining_slots = Slot.objects.filter(lobby_id=self.lobby)
+        self.assertFalse(remaining_slots.exists())
+
+    def test_delete_lobby_doesnt_impact_other_lobbies(self):
+        self.client.login(username="host_user", password="test123")
+        yaml = make_yaml(self.host_user)
+        other_lobby = make_lobby(self.host_user)
+        Slot.objects.create(lobby_id=self.lobby, slot_id=yaml)
+        Slot.objects.create(lobby_id=other_lobby, slot_id=yaml)
+        self.client.get(self._url())
+        remaining_slots = Slot.objects.filter(lobby_id=other_lobby)
+        self.assertTrue(remaining_slots.exists())
+        
