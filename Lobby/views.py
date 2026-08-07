@@ -1,12 +1,11 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.timezone import now
 from django.db import DatabaseError
 from django.contrib import messages
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-import guardian.core
 from guardian.shortcuts import assign_perm, get_objects_for_user
 from django.template import RequestContext, loader
 
@@ -145,11 +144,10 @@ def delete_lobby(request, lobby_id):
 
 def view_lobby(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
-    if (not request.user.has_perm("Lobby:view_lobby", lobby)):
-        return HttpResponseNotFound()
     slots = Slot.objects.filter(
         lobby_id_id=lobby_id
     )
+    #ZZZ Figuring out how to display permitted actions for connection
     
     return HttpResponse(
         render(
