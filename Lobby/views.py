@@ -147,15 +147,13 @@ def view_lobby(request, lobby_id):
     slots = Slot.objects.filter(
         lobby_id_id=lobby_id
     )
-    #ZZZ Figuring out how to display permitted actions for connection
     
-    return HttpResponse(
-        render(
-            request, 
-            "Lobby/view_lobby.html",
-            {"lobby": lobby, "slots": slots,}
-        )
+    return render(
+        request, 
+        "Lobby/view_lobby.html",
+        {"lobby": lobby, "slots": slots,}
     )
+
 
 @login_required()
 def join_lobby_view(request, lobby_id):
