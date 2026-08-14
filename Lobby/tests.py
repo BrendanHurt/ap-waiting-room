@@ -5,7 +5,7 @@ import datetime
 from user_yamls.models import Yaml
 from .models import Lobby, Slot
 from django.contrib.auth.models import User
-from guardian.core import ObjectPermissionChecker
+from guardian.shortcuts import get_objects_for_user
 
 def make_user(username: str, password: str = "test123") -> User:
     return User.objects.create_user(username=username, password=password)
@@ -231,6 +231,7 @@ class LobbyFormTests(TestCase):
             "Lobby:lobby_form",
             kwargs={"lobby_id": 999999}
         ))
+        print(response)
         self.assertEqual(response.status_code, 404)
 
     def test_edit_form_redirects_unauthenticated(self):
@@ -467,3 +468,49 @@ class DeleteLobbyViewTests(TestCase):
         remaining_slots = Slot.objects.filter(lobby_id=other_lobby)
         self.assertTrue(remaining_slots.exists())
         
+class ViewLobbyViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host_user = make_user(username="host_user", password="test123")
+        self.lobby = make_lobby(self.host_user)
+        
+    def _url(self, lobby_id):
+        return (reverse(
+            "Lobby:view_lobby", 
+            kwargs={"lobby_id": lobby_id}
+        ))
+
+    def test_view_lobby_uses_correct_template(self):
+        response = self.client.get(self._url(self.lobby.id))
+        self.assertTemplateUsed(response, "Lobby/view_lobby.html")
+
+    def test_view_lobby_returns_200(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._url(self.lobby.id))
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_lobby_returns_404_for_nonexistent_lobby(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._url(99999))
+        self.assertEqual(response.status_code, 404)
+
+    def test_new_lobby_contains_empty_slot_list(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._url(self.lobby.id))
+        self.assertEqual(list(response.context["slots"]), [])
+    
+    #Testing that context gets sent over
+    def test_view_lobby_context_contains_slots(self):
+        self.client.login(username="host_user", password="test123")
+        yaml = make_yaml(self.host_user)
+        slot = Slot.objects.create(lobby_id=self.lobby, slot_id=yaml)
+        response = self.client.get(self._url(self.lobby.id))
+        self.assertIn(slot, list(response.context["slots"]))
+
+    def test_view_lobby_context_contains_lobby(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._url(self.lobby.id))
+        self.assertEqual(response.context["lobby"], self.lobby)
+
+    
+
