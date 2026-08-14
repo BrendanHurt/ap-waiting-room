@@ -286,18 +286,17 @@ class SubmitLobbyViewTests(TestCase):
     def test_create_lobby_assigns_host_permissions(self):
         self.client.login(username="host_user", password="test123")
         response = self.client.post(self.url, self.valid_payload)
-        checker = ObjectPermissionChecker(self.host_user)
         lobby = Lobby.objects.get(name="Test Lobby")
         self.assertEqual(
-            checker.has_perm("change_lobby", lobby),
+            self.host_user.has_perm("change_lobby", lobby),
             True
         )
         self.assertEqual(
-            checker.has_perm("delete_lobby", lobby),
+            self.host_user.has_perm("delete_lobby", lobby),
             True
         )
         self.assertEqual(
-            checker.has_perm("view_lobby", lobby),
+            self.host_user.has_perm("view_lobby", lobby),
             True
         )
 
