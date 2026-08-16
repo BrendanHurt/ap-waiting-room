@@ -171,12 +171,10 @@ def add_slot_form_view(request, lobby_id):
         user_id=request.user
     )
 
-    return HttpResponse(
-        render(
-            request,
-            "Lobby/add_slot_form.html",
-            {"yaml_list": yaml_list, "lobby_id": lobby_id}
-        ),
+    return render(
+        request,
+        "Lobby/add_slot_form.html",
+        {"yaml_list": yaml_list, "lobby_id": lobby_id}
     )
 
 def add_slot_view(request, lobby_id):
