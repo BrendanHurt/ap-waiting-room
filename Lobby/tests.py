@@ -511,5 +511,48 @@ class ViewLobbyViewTests(TestCase):
         response = self.client.get(self._url(self.lobby.id))
         self.assertEqual(response.context["lobby"], self.lobby)
 
-    
+class JoinLobbyViewTests(TestCase):
+    def setUp(self):
+        self.host_user = make_user(username="host_user")
+        self.other_user = make_user(username="other_user")
+        self.lobby = make_lobby(self.host_user)
 
+    def _join(self, lobby_id):
+        return reverse("Lobby:join_lobby", kwargs={"lobby_id": lobby_id})
+
+    def test_join_grants_view_lobby_permission(self):
+        self.client.login(username="other_user", password="test123")
+        self.client.get(self._join(self.lobby.id))
+        self.assertTrue(self.other_user.has_perm(
+            "view_lobby", self.lobby
+        ))
+    
+    def test_valid_join_redirects_to_view_lobby(self):
+        self.client.login(username="other_user", password="test123")
+        response = self.client.get(self._join(self.lobby.id))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, 
+            reverse(
+                "Lobby:view_lobby",
+                kwargs={"lobby_id": self.lobby.id}
+            ),
+            fetch_redirect_response=False
+        )
+
+    def test_join_returns_404_for_nonexistent_lobby(self):
+        self.client.login(username="other_user", password="test123")
+        response = self.client.get(self._join(99999))
+        self.assertEqual(response.status_code, 404)
+
+    def test_join_lobby_is_idempotent(self):
+        self.client.login(username="other_user", password="test123")
+        response = self.client.get(self._join(self.lobby.id))
+        response = self.client.get(self._join(self.lobby.id))
+        self.assertRedirects(
+            response,
+            reverse("Lobby:view_lobby", kwargs={"lobby_id": self.lobby.id}),
+            fetch_redirect_response=False
+        )
+        self.assertTrue(self.other_user.has_perm("view_lobby", self.lobby))
+        
