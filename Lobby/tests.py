@@ -555,4 +555,59 @@ class JoinLobbyViewTests(TestCase):
             fetch_redirect_response=False
         )
         self.assertTrue(self.other_user.has_perm("view_lobby", self.lobby))
-        
+
+#===============================================
+# Slot Tests     
+class AddSlotFormViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host_user = make_user(username="host_user")
+        self.lobby = make_lobby(self.host_user)
+        self.first_yaml = make_yaml(self.host_user)
+        self.second_yaml = make_yaml(self.host_user)
+        self.other_user = make_user(username="other_user")
+        self.other_yaml = make_yaml(self.other_user)
+    
+    def _add_slot_url(self, lobby_id,):
+        return reverse(
+            "Lobby:add_slot_form",
+            kwargs={"lobby_id": lobby_id}
+        )
+
+    def test_add_slot_form_view_uses_correct_template(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._add_slot_url(self.lobby.id))
+        self.assertNotEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, "Lobby/add_slot_form.html")
+    
+    def test_add_slot_form_returns_200_for_valid_lobby(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._add_slot_url(self.lobby.id))
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_slot_form_returns_404_for_nonexistent_lobby(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._add_slot_url(99999))
+        self.assertEqual(response.status_code, 404)
+
+    def test_add_slot_form_sends_correct_context(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.get(self._add_slot_url(self.lobby.id))
+        hosts_yamls = Yaml.objects.filter(user_id=self.host_user)
+
+        self.assertEqual(self.lobby.id, response.context["lobby_id"])
+        yaml_list = list(response.context["yaml_list"])
+        for yaml in hosts_yamls:
+            self.assertIn(yaml, yaml_list)
+            self.assertNotIn(self.other_yaml, yaml_list)
+
+    def test_add_slot_form_redirects_unauthenticated_to_login_view(self):
+        response = self.client.get(self._add_slot_url(self.lobby.id))
+        self.assertRedirects(
+            response,
+            f"{reverse('users:login')}?next={self._add_slot_url(self.lobby.id)}",
+            fetch_redirect_response=False
+        )
+    
+
+
