@@ -11,4 +11,4 @@ class Yaml(models.Model):
     last_edited = models.DateField(auto_now = True)
 
     def __str__(self):
-        return f"{self.slot}\n{self.game_name}\n{self.description}\n\n{self.game_options}"
+        return f"{self.slot_name}\n{self.game_name}\n{self.description}\n\n{self.game_options}"
