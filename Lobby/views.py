@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
 from django.utils.timezone import now
 from django.db import DatabaseError
@@ -167,6 +167,9 @@ def join_lobby_view(request, lobby_id):
 # Lobby Connection Views
 @login_required(redirect_field_name="next")
 def add_slot_form_view(request, lobby_id):
+    if (len(Lobby.objects.filter(pk=lobby_id)) == 0):
+        return HttpResponseNotFound()
+
     yaml_list = Yaml.objects.filter(
         user_id=request.user
     )
