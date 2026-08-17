@@ -231,7 +231,6 @@ class LobbyFormTests(TestCase):
             "Lobby:lobby_form",
             kwargs={"lobby_id": 999999}
         ))
-        print(response)
         self.assertEqual(response.status_code, 404)
 
     def test_edit_form_redirects_unauthenticated(self):
