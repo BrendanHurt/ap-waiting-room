@@ -183,11 +183,11 @@ def add_slot_form_view(request, lobby_id):
 def add_slot_view(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     yaml_ids = request.POST.getlist("yaml_ids")
-    
-    if yaml_ids is None:
+
+    if len(yaml_ids) < 1:
         messages.error(request, "You must select at least one YAML to join a lobby")
         return HttpResponseRedirect(
-            reverse("Lobby:add_slot_form", args=(lobby.id,))
+            reverse("Lobby:add_slot_form", kwargs={"lobby_id": lobby_id})
         )
 
     for yaml_id in yaml_ids:
@@ -197,7 +197,6 @@ def add_slot_view(request, lobby_id):
             lobby_id=lobby,
             slot_id=yaml
         )
-
 
     return HttpResponseRedirect(
         reverse(
