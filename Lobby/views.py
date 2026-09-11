@@ -183,20 +183,40 @@ def add_slot_form_view(request, lobby_id):
 def add_slot_view(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     yaml_ids = request.POST.getlist("yaml_ids")
-
     if len(yaml_ids) < 1:
         messages.error(request, "You must select at least one YAML to join a lobby")
         return HttpResponseRedirect(
             reverse("Lobby:add_slot_form", kwargs={"lobby_id": lobby_id})
         )
 
-    for yaml_id in yaml_ids:
-        yaml = get_object_or_404(Yaml, pk=yaml_id)
+    newSlots = []
+    presentSlots = Slot.objects.filter(lobby_id=lobby)
 
-        newSlot = Slot.objects.create(
-            lobby_id=lobby,
-            slot_id=yaml
+    for yaml_id in yaml_ids:
+        dupeSlot = presentSlots.filter(slot_id__id=yaml_id)
+        yaml = Yaml.objects.filter(pk=yaml_id)
+
+        if (yaml.exists() and len(dupeSlot) == 0):
+            newSlots.append(Slot(
+                lobby_id=lobby,
+                slot_id=yaml[0]
+            ))
+        elif (len(dupeSlot) > 0):
+            messages.warning(request, f"The yaml with the slot name {yaml[0].slot_name} has already been added to this lobby")
+        else:
+            return HttpResponseNotFound()
+
+    try:
+        Slot.objects.bulk_create(newSlots)
+    except:
+        messages.error(request, "Something went wrong")
+        return HttpResponseRedirect(
+            reverse(
+                "Lobby:add_slot_form",
+                kwargs={"lobby_id": lobby_id}
+            )
         )
+    
 
     return HttpResponseRedirect(
         reverse(
