@@ -6,6 +6,8 @@ from user_yamls.models import Yaml
 from .models import Lobby, Slot
 from django.contrib.auth.models import User
 from guardian.shortcuts import get_objects_for_user
+from django.contrib.messages.test import MessagesTestMixin
+from django.contrib.messages import Message
 
 def make_user(username: str, password: str = "test123") -> User:
     return User.objects.create_user(username=username, password=password)
@@ -608,5 +610,109 @@ class AddSlotFormViewTests(TestCase):
             fetch_redirect_response=False
         )
     
+
+class AddSlotViewTests(MessagesTestMixin, TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host_user = make_user(username="host_user")
+        self.lobby = make_lobby(self.host_user)
+        self.first_yaml = make_yaml(self.host_user)
+        self.second_yaml = make_yaml(
+            self.host_user, 
+            slot_name = "SecondSlot",
+            game_name = "Different Name",
+            description = "Different test description",
+            game_options = "Different options"
+        )
+    
+    def _add_slot_url(self, lobby_id):
+        return reverse(
+            "Lobby:add_slot",
+            kwargs={"lobby_id": lobby_id,}
+        )
+
+    def test_add_slot_redirects_to_view_lobby_for_valid_addition(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(
+            self._add_slot_url(self.lobby.id),
+            {"yaml_ids": [self.first_yaml.id]}
+        )
+        self.assertRedirects(
+            response,
+            reverse(
+                "Lobby:view_lobby",
+                kwargs={"lobby_id": self.lobby.id}
+            ),
+            fetch_redirect_response=False
+        )
+
+    def test_add_slot_redirects_with_error_for_empty_submission(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(self._add_slot_url(self.lobby.id))
+        self.assertRedirects(
+            response,
+            f"{reverse('Lobby:add_slot_form', kwargs={'lobby_id': self.lobby.id})}",
+            fetch_redirect_response=False
+        )
+        self.assertMessages(
+            response,
+            [Message(40, "You must select at least one YAML to join a lobby")]
+        )
+
+    def test_add_slot_returns_404_for_nonexistent_yaml(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(
+            self._add_slot_url(self.lobby.id),
+            {"yaml_ids": [99999]}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_add_slot_persists_to_database(self):
+        self.client.login(username="host_user", password="test123")
+        count_before = Slot.objects.count()
+        response = self.client.post(
+            self._add_slot_url(self.lobby.id),
+            {"yaml_ids": [self.first_yaml.id, self.second_yaml.id]}
+        )
+        self.assertEqual(count_before + 2, Slot.objects.count())
+        self.assertTrue(Slot.objects.get(slot_id=self.first_yaml))
+
+    def test_add_slot_has_warning_message_for_duplicate_slot(self):
+        self.client.login(username="host_user", password="test123")
+        self.client.post(
+            self._add_slot_url(self.lobby.id),
+            {"yaml_ids": [self.first_yaml.id]}
+        )
+        response = self.client.post(
+            self._add_slot_url(self.lobby.id),
+            {"yaml_ids": [self.first_yaml.id]}
+        )
+        self.assertMessages(
+            response,
+            [Message(30, f"The yaml with the slot name {self.first_yaml.slot_name} has already been added to this lobby")]
+        )
+
+    def test_add_slot_inserts_distinct_elements_with_partial_duplicate_post(self):
+        self.client.login(username="host_user", password="test123")
+        self.client.post(
+            self._add_slot_url(self.lobby.id),
+            {"yaml_ids": [self.first_yaml.id]}
+        )
+        response = self.client.post(
+            self._add_slot_url(self.lobby.id),
+            {"yaml_ids": [self.first_yaml.id, self.second_yaml.id]}
+        )
+        self.assertRedirects(
+            response,
+            reverse("Lobby:view_lobby", kwargs={"lobby_id": self.lobby.id}),
+            fetch_redirect_response=False
+        )
+        self.assertMessages(
+            response,
+            [Message(30, f"The yaml with the slot name {self.first_yaml.slot_name} has already been added to this lobby")]
+        )
+        self.assertEqual(len(Slot.objects.filter(slot_id=self.first_yaml)), 1)
+        self.assertEqual(len(Slot.objects.filter(slot_id=self.second_yaml)), 1)
+        
 
 
