@@ -225,6 +225,7 @@ def add_slot_view(request, lobby_id):
         )
     )
 
+@login_required()
 def delete_slot_view(request, slot_id):
     slot = get_object_or_404(Slot, pk=slot_id)
     lobby = slot.lobby_id
