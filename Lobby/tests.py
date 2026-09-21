@@ -714,5 +714,54 @@ class AddSlotViewTests(MessagesTestMixin, TestCase):
         self.assertEqual(len(Slot.objects.filter(slot_id=self.first_yaml)), 1)
         self.assertEqual(len(Slot.objects.filter(slot_id=self.second_yaml)), 1)
         
+class DeleteSlotViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host_user = make_user(username="host_user")
+        self.lobby = make_lobby(host=self.host_user)
+        self.yaml = make_yaml(owner=self.host_user)
+        self.slot = Slot.objects.create(lobby_id=self.lobby, slot_id=self.yaml)
+
+    def _set_up_lobby(self):
+        newSlot = Slot.objects.create(lobby_id=self.lobby, slot_id=self.yaml)
+        return newSlot
+
+    def test_delete_slot_redirects_to_view_lobby_on_valid_deletion(self):
+        self.client.login(username="host_user", password="test123")
+        slot = self._set_up_lobby()
+        response = self.client.post(
+            reverse("Lobby:delete_slot", kwargs={"slot_id": slot.id})
+        )
+        self.assertRedirects(
+            response,
+            reverse("Lobby:view_lobby", kwargs={"lobby_id": self.lobby.id}),
+            fetch_redirect_response=False
+        )
+
+    def test_delete_slot_returns_404_for_nonexistent_slot(self):
+        self.client.login(username="host_user", password="test123")
+        slot = self._set_up_lobby()
+        response = self.client.post(
+            reverse("Lobby:delete_slot", kwargs={"slot_id": 99999})
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_slot_persists_to_database(self):
+        self.client.login(username="host_user", password="test123")
+        slot = self._set_up_lobby()
+        response = self.client.post(
+            reverse("Lobby:delete_slot", kwargs={"slot_id": self.yaml.id})
+        )
+        self.assertEqual(0, len(Slot.objects.filter(slot_id=self.yaml)))
+
+    def test_delete_slot_redirects_unauthenticated(self):
+        view_url = reverse("Lobby:delete_slot", kwargs={"slot_id": self.yaml.id})
+        response = self.client.post(view_url)
+        self.assertRedirects(
+            response,
+            f"{reverse('users:login')}?next={view_url}",
+            fetch_redirect_response=False
+        )
+
 
 
