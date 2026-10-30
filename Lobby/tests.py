@@ -764,4 +764,37 @@ class DeleteSlotViewTests(TestCase):
         )
 
 
+class EditSlotViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host_user = make_user(username="host_user")
+        self.lobby = make_lobby(self.host_user)
+        self.yaml = make_yaml(self.host_user)
+        self.slot = Slot.objects.create(lobby_id=self.lobby, slot_id=self.yaml)
 
+    def test_edit_slot_redirects_to_lobby_form_view(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(
+            reverse("Lobby:edit_slot", kwargs={"slot_id": self.yaml.id})
+        )
+        self.assertRedirects(
+            response,
+            reverse("user_yamls:yaml_form", args=(self.yaml.id,)),
+            fetch_redirect_response=False
+        )
+
+    def test_edit_slot_redirects_unauthenticated(self):
+        view_url = reverse("Lobby:edit_slot", kwargs={"slot_id": self.yaml.id})
+        response = self.client.post(view_url)
+        self.assertRedirects(
+            response,
+            f"{reverse('users:login')}?next={view_url}",
+            fetch_redirect_response=False
+        )
+    
+    def test_edit_slot_returns_404_for_nonexistent_slot(self):
+        self.client.login(username="host_user", password="test123")
+        response = self.client.post(reverse("Lobby:edit_slot", kwargs={"slot_id": 99999}))
+        self.assertEqual(response.status_code, 404) 
+    
+    
