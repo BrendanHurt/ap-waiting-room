@@ -237,7 +237,9 @@ def delete_slot_view(request, slot_id):
         )
     )
 
+@login_required()
 def edit_slot_view(request, slot_id):
+    slot = get_object_or_404(Slot, pk=slot_id)
     return HttpResponseRedirect(
         reverse("user_yamls:yaml_form", args=(slot_id,))
     )
