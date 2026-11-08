@@ -91,6 +91,7 @@ def lobby_form(request, lobby_id=None):
     )
 
 # TODO: Add logging to form submissions, successful or not
+@login_required()
 def submit_lobby(request, lobby_id=None):
 
     if not request.user.is_authenticated:
@@ -131,6 +132,7 @@ def assign_host_perms(sender, instance, created, **kwargs):
         assign_perm("view_lobby", instance.host_id, instance)
 
 
+@login_required()
 def delete_lobby(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     lobby.delete()
@@ -142,6 +144,7 @@ def delete_lobby(request, lobby_id):
     )
 
 
+@login_required()
 def view_lobby(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     slots = Slot.objects.filter(
