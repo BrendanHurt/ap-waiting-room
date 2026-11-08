@@ -194,6 +194,7 @@ def add_slot_form_view(request, lobby_id):
         {"yaml_list": yaml_list, "lobby_id": lobby_id}
     )
 
+@login_required()
 def add_slot_view(request, lobby_id):
     lobby = get_object_or_404(Lobby, pk=lobby_id)
     yaml_ids = request.POST.getlist("yaml_ids")
@@ -208,7 +209,7 @@ def add_slot_view(request, lobby_id):
 
     for yaml_id in yaml_ids:
         dupeSlot = presentSlots.filter(slot_id__id=yaml_id)
-        yaml = get_object_or_404(Yaml, pk=yaml_id) #Yaml.objects.filter(pk=yaml_id)
+        yaml = get_object_or_404(Yaml, pk=yaml_id)
 
         if (len(dupeSlot) == 0):
             newSlot = Slot(lobby_id=lobby, slot_id=yaml)
