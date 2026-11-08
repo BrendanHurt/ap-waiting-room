@@ -10,6 +10,7 @@ urlpatterns = [
     path("form/submit/", views.submit_lobby, name="submit_lobby"),
     path("form/submit/<slug:lobby_id>", views.submit_lobby, name="submit_lobby"),
     path("del/<int:lobby_id>", views.delete_lobby, name="delete_lobby"),
+    path("leave/<int:lobby_id>", views.leave_lobby_view, name="leave_lobby"),
 
     path("<int:lobby_id>", views.view_lobby, name="view_lobby"),
     path("<int:lobby_id>/join", views.join_lobby_view, name="join_lobby"),

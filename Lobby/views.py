@@ -6,7 +6,7 @@ from django.db import DatabaseError
 from django.contrib import messages
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from guardian.shortcuts import assign_perm, get_objects_for_user
+from guardian.shortcuts import assign_perm, get_objects_for_user, remove_perm
 from django.template import RequestContext, loader
 
 from .models import Lobby, Slot
@@ -162,6 +162,20 @@ def join_lobby_view(request, lobby_id):
     return HttpResponseRedirect(
         reverse("Lobby:view_lobby", args=(lobby_id,))
     )
+
+
+@login_required()
+def leave_lobby_view(request, lobby_id):
+    lobby = get_object_or_404(Lobby, pk=lobby_id)
+    slots = Slot.objects.filter(
+        lobby_id=lobby_id, 
+        slot_id__user_id=request.user.id
+    )
+    for slot in slots:
+        slot.delete()
+    remove_perm("view_lobby", request.user, lobby)
+    return HttpResponseRedirect(reverse("Lobby:lobby_browser"))
+
 
 #----------------------------------------------
 # Lobby Connection Views

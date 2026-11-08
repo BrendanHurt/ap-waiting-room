@@ -11,6 +11,18 @@
         <a href="{% url 'Lobby:add_slot_form' lobby.id %}">
             Add a slot
         </a>
+        <button command="show-modal" commandfor="leave-lobby-dialogue">
+            Leave Lobby
+        </button>
+        <dialog id="leave-lobby-dialogue">
+            <p>Leave this lobby?</p>
+            <a href="{% url 'Lobby:leave_lobby' lobby.id %}">
+                Yes, leave
+            </a>
+            <button commandfor="leave-lobby-dialogue" command="close">
+                No, stay here
+            </button>
+        </dialog>
         {% for slot in slots %}
             <fieldset>
                 <p>Game: {{ slot.slot_id.game_name }}</p>
